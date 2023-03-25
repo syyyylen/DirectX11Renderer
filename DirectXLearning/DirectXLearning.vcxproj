@@ -215,6 +215,7 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
+    <ClCompile Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\GraphicsEngine.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
@@ -294,6 +295,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\AppWindow.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\GraphicsEngine.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />

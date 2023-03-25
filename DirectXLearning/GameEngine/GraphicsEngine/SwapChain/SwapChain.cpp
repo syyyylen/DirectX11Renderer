@@ -35,6 +35,25 @@ bool SwapChain::Init(HWND hwnd, UINT width, UINT height)
         return false;
     }
 
+
+    ID3D11Texture2D* buffer = NULL;
+    res = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&buffer);
+
+    if(FAILED(res))
+    {
+        LOG("Failed Texture2D buffer creation");
+        return false;
+    }
+
+    res = d3dDevice->CreateRenderTargetView(buffer, NULL, &m_rtv);
+    buffer->Release();
+
+    if(FAILED(res))
+    {
+        LOG("Failed rtv creation");
+        return false;
+    }
+
     LOG("Suceeded SwapChain creation");
     
     return true;
@@ -46,6 +65,13 @@ bool SwapChain::Release()
         m_swapChain->Release();
 
     delete this;
+    
+    return true;
+}
+
+bool SwapChain::Present(bool vsync)
+{
+    m_swapChain->Present(vsync, NULL);
     
     return true;
 }

@@ -1,5 +1,6 @@
 ﻿#include "Window.h"
 
+#include "../GraphicsEngine/DeviceContext/DeviceContext.h"
 
 //Window* window = nullptr;
 
@@ -91,13 +92,13 @@ bool Window::BroadCast()
 {
     MSG msg;
 
+    OnUpdate();
+    
     while(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE) > 0)
     {
         TranslateMessage(&msg);
         DispatchMessageW(&msg);
     }
-
-    OnUpdate();
 
     Sleep(1);
     
@@ -110,6 +111,11 @@ bool Window::IsRunning()
 }
 
 void Window::OnCreate()
+{
+    
+}
+
+void Window::OnUpdate()
 {
     
 }

@@ -15,7 +15,7 @@ public:
     bool IsRunning();
 
     virtual void OnCreate();
-    virtual void OnUpdate()=0;
+    virtual void OnUpdate();
     virtual void OnDestroy();
 
     RECT GetClientWindowRect();
