@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "../GameEngine/WindowingSystem/Window.h"
 #include "../GameEngine/GraphicsEngine/GraphicsEngine.h"
-#include "../GameEngine/GraphicsEngine/GraphicsEngine.h"
+#include "../GameEngine/GraphicsEngine/VertexBuffer/VertexBuffer.h"
 
 class AppWindow : public Window
 {
@@ -15,4 +15,5 @@ public:
 
 private:
     SwapChain* m_swapChain;
+    VertexBuffer* m_vertexBuffer;
 };

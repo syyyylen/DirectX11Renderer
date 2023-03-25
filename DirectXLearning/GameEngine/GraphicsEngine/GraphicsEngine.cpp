@@ -2,6 +2,7 @@
 #include"../Logger/Log.h"
 #include "SwapChain/SwapChain.h"
 #include "DeviceContext/DeviceContext.h"
+#include "VertexBuffer/VertexBuffer.h"
 
 GraphicsEngine::GraphicsEngine()
 {
@@ -29,12 +30,10 @@ bool GraphicsEngine::Init()
 
     HRESULT res = 0;
 
-    ID3D11DeviceContext* immContext;
-
     for (UINT driver_type_index = 0; driver_type_index < num_driver_types;)
     {
         res =D3D11CreateDevice(NULL, driver_types[driver_type_index], NULL, NULL, feature_levels,
-            num_feature_levels, D3D11_SDK_VERSION, &m_d3dDevice, &m_featureLevel, &immContext);
+            num_feature_levels, D3D11_SDK_VERSION, &m_d3dDevice, &m_featureLevel, &m_immContext);
         if (SUCCEEDED(res))
             break;
         ++driver_type_index;
@@ -44,7 +43,7 @@ bool GraphicsEngine::Init()
         return false;
     }
 
-    m_immDeviceContext = new DeviceContext(immContext);
+    m_immDeviceContext = new DeviceContext(m_immContext);
     
     m_d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&m_dxgiDevice);
     m_dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&m_dxgiAdapter);
@@ -77,6 +76,31 @@ bool GraphicsEngine::Release()
     return true;
 }
 
+bool GraphicsEngine::CreateShaders()
+{
+    ID3DBlob* errblob = nullptr;
+    D3DCompileFromFile(L"shader.fx", nullptr, nullptr, "vsmain", "vs_5_0", NULL, NULL, &m_vsblob, &errblob);
+    D3DCompileFromFile(L"shader.fx", nullptr, nullptr, "psmain", "ps_5_0", NULL, NULL, &m_psblob, &errblob);
+    m_d3dDevice->CreateVertexShader(m_vsblob->GetBufferPointer(), m_vsblob->GetBufferSize(), nullptr, &m_vs);
+    m_d3dDevice->CreatePixelShader(m_psblob->GetBufferPointer(), m_psblob->GetBufferSize(), nullptr, &m_ps);
+    
+    return true;
+}
+
+bool GraphicsEngine::SetShaders()
+{
+    m_immContext->VSSetShader(m_vs, nullptr, 0);
+    m_immContext->PSSetShader(m_ps, nullptr, 0);
+    
+    return true;
+}
+
+void GraphicsEngine::GetShaderBufferAndSize(void** byteCode, UINT* size)
+{
+    *byteCode = this->m_vsblob->GetBufferPointer();
+    *size = (UINT)this->m_vsblob->GetBufferSize();
+}
+
 GraphicsEngine* GraphicsEngine::Get()
 {
     static GraphicsEngine engine;
@@ -91,4 +115,9 @@ SwapChain* GraphicsEngine::CreateSwapChain()
 DeviceContext* GraphicsEngine::GetImmediateDeviceContext()
 {
     return m_immDeviceContext;
+}
+
+VertexBuffer* GraphicsEngine::CreateVertexBuffer()
+{
+    return new VertexBuffer();
 }
