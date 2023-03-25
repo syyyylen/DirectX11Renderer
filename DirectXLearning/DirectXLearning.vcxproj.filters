@@ -9,8 +9,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>App</Filter>
-    </ClCompile>
+    <ClCompile Include="App\AppWindow.cpp" />
+    <ClCompile Include="App\Main.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\GraphicsEngine.cpp" />
+    <ClCompile Include="GameEngine\WindowingSystem\Window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="App\AppWindow.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\GraphicsEngine.h" />
+    <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
   </ItemGroup>
 </Project>
