@@ -144,6 +144,8 @@ bool GraphicsEngine::CompileVertexShader(const wchar_t* fileName, const char* en
     *shaderByteCode = m_blob->GetBufferPointer();
     *byteCodeSize = m_blob->GetBufferSize();
 
+    LOG("Vertex Shader Compilation succeeded !");
+
     return true;
 }
 

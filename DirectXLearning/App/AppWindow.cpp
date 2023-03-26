@@ -35,7 +35,7 @@ void AppWindow::OnCreate()
         {-0.5f, -0.5f, 0.0f},
         {-0.5f, 0.5f, 0.0f},
         {0.5f, -0.5f, 0.0f},
-        {0.75f, 0.75f, 0.0f}
+        {0.5f, 0.5f, 0.0f}
     };
 
     m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
