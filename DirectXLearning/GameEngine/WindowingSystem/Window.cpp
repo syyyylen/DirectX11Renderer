@@ -27,8 +27,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 
         case WM_DESTROY:
         {
-            Window* window = (Window*) GetWindowLong(hwnd, GWLP_USERDATA);
-            window->OnDestroy();
+            Window* window = (Window*)GetWindowLong(hwnd, GWLP_USERDATA);
+            if(window)
+                window->OnDestroy();
             ::PostQuitMessage(0);
             break;
         }
