@@ -2,6 +2,7 @@
 #include "../GameEngine/WindowingSystem/Window.h"
 #include "../GameEngine/GraphicsEngine/GraphicsEngine.h"
 #include "../GameEngine/GraphicsEngine/VertexBuffer/VertexBuffer.h"
+#include "../GameEngine/GraphicsEngine/VertexShader/VertexShader.h"
 
 class AppWindow : public Window
 {
@@ -16,4 +17,5 @@ public:
 private:
     SwapChain* m_swapChain;
     VertexBuffer* m_vertexBuffer;
+    VertexShader* m_vs;
 };

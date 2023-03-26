@@ -3,6 +3,9 @@
 #include "SwapChain/SwapChain.h"
 #include "DeviceContext/DeviceContext.h"
 #include "VertexBuffer/VertexBuffer.h"
+#include "VertexShader/VertexShader.h"
+#include <d3dcompiler.h>
+#include <system_error>
 
 GraphicsEngine::GraphicsEngine()
 {
@@ -43,6 +46,24 @@ bool GraphicsEngine::Init()
         return false;
     }
 
+    // Changing rasterizer properties & state 
+    D3D11_RASTERIZER_DESC rasterizerDesc;
+    ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
+    rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+    rasterizerDesc.CullMode = D3D11_CULL_NONE; // Disable culling of face with counterclockwise vertices indexes
+    rasterizerDesc.FrontCounterClockwise = false;
+    rasterizerDesc.DepthBias = 0;
+    rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+    rasterizerDesc.DepthBiasClamp = 0.0f;
+    rasterizerDesc.DepthClipEnable = true;
+    rasterizerDesc.ScissorEnable = false;
+    rasterizerDesc.MultisampleEnable = false;
+    rasterizerDesc.AntialiasedLineEnable = false;
+
+    ID3D11RasterizerState* rasterizerState;
+    m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
+    m_immContext->RSSetState(rasterizerState);
+
     m_immDeviceContext = new DeviceContext(m_immContext);
     
     m_d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&m_dxgiDevice);
@@ -79,9 +100,9 @@ bool GraphicsEngine::Release()
 bool GraphicsEngine::CreateShaders()
 {
     ID3DBlob* errblob = nullptr;
-    D3DCompileFromFile(L"shader.fx", nullptr, nullptr, "vsmain", "vs_5_0", NULL, NULL, &m_vsblob, &errblob);
+    
+    // Default Pixel Shader WIP 
     D3DCompileFromFile(L"shader.fx", nullptr, nullptr, "psmain", "ps_5_0", NULL, NULL, &m_psblob, &errblob);
-    m_d3dDevice->CreateVertexShader(m_vsblob->GetBufferPointer(), m_vsblob->GetBufferSize(), nullptr, &m_vs);
     m_d3dDevice->CreatePixelShader(m_psblob->GetBufferPointer(), m_psblob->GetBufferSize(), nullptr, &m_ps);
     
     return true;
@@ -89,16 +110,47 @@ bool GraphicsEngine::CreateShaders()
 
 bool GraphicsEngine::SetShaders()
 {
-    m_immContext->VSSetShader(m_vs, nullptr, 0);
     m_immContext->PSSetShader(m_ps, nullptr, 0);
     
     return true;
 }
 
-void GraphicsEngine::GetShaderBufferAndSize(void** byteCode, UINT* size)
+bool GraphicsEngine::CompileVertexShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize)
 {
-    *byteCode = this->m_vsblob->GetBufferPointer();
-    *size = (UINT)this->m_vsblob->GetBufferSize();
+    ID3DBlob* errorBlob = nullptr;
+    HRESULT res;
+    
+    res = D3DCompileFromFile(fileName, nullptr, nullptr, entryPointName, "vs_5_0", 0, 0, &m_blob, &errorBlob);
+
+    if(!SUCCEEDED(res))
+    {
+        LOG("Compile from file failed ! HRESULT : ");
+
+        // HRESULT to msg, super usefull
+        std::string errorMsg = std::system_category().message(res);
+        LOG(errorMsg);
+
+        // blob to string with an eventual error message 
+        if (errorBlob) 
+        {
+            std::string errorMessage(static_cast<const char*>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
+            LOG(errorMessage);
+            errorBlob->Release();
+        }
+
+        return false;
+    }
+
+    *shaderByteCode = m_blob->GetBufferPointer();
+    *byteCodeSize = m_blob->GetBufferSize();
+
+    return true;
+}
+
+void GraphicsEngine::ReleaseCompiledShader()
+{
+    if(m_blob)
+        m_blob->Release();
 }
 
 GraphicsEngine* GraphicsEngine::Get()
@@ -120,4 +172,16 @@ DeviceContext* GraphicsEngine::GetImmediateDeviceContext()
 VertexBuffer* GraphicsEngine::CreateVertexBuffer()
 {
     return new VertexBuffer();
+}
+
+VertexShader* GraphicsEngine::CreateVertexShader(const void* shaderByteCode, size_t shaderByteSize)
+{
+    VertexShader* vs = new VertexShader();
+    if(!vs->Init(shaderByteCode, shaderByteSize))
+    {
+        vs->Release();
+        return nullptr;
+    }
+    
+    return vs;
 }

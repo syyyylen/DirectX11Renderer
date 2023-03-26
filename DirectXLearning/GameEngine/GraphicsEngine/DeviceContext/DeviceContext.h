@@ -3,6 +3,7 @@
 
 class SwapChain;
 class VertexBuffer;
+class VertexShader;
 
 class DeviceContext
 {
@@ -13,7 +14,11 @@ public:
     void ClearRenderTargetColor(SwapChain* swapChain, float red, float green, float blue, float alpha);
     void SetVertexBuffer(VertexBuffer* vertexBuffer);
     void DrawTriangleList(UINT vertexCount, UINT startVertexIndex);
+    void DrawTriangleStrip(UINT vertexCount, UINT startVertexIndex);
+    
     void SetViewportSize(UINT width, UINT height);
+
+    void SetVertexShader(VertexShader* vertexShader);
     
     bool Release();
 

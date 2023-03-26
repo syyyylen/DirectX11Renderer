@@ -17,6 +17,7 @@
     <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\AppWindow.h" />
@@ -26,5 +27,9 @@
     <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="App\VertexShader.hlsl" />
   </ItemGroup>
 </Project>

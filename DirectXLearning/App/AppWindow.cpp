@@ -33,8 +33,9 @@ void AppWindow::OnCreate()
     Vertex list[] =
     {
         {-0.5f, -0.5f, 0.0f},
-        {0.0f, 0.5f, 0.0f},
-        {0.5f, -0.5f, 0.0f}
+        {-0.5f, 0.5f, 0.0f},
+        {0.5f, -0.5f, 0.0f},
+        {0.75f, 0.75f, 0.0f}
     };
 
     m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
@@ -43,17 +44,21 @@ void AppWindow::OnCreate()
     GraphicsEngine::Get()->CreateShaders();
 
     void* shaderByteCode = nullptr;
-    UINT shaderSize = 0;
-    GraphicsEngine::Get()->GetShaderBufferAndSize(&shaderByteCode, &shaderSize);
+    size_t shaderSize = 0;
+    GraphicsEngine::Get()->CompileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &shaderSize);
     
+    m_vs = GraphicsEngine::Get()->CreateVertexShader(shaderByteCode, shaderSize);
+
     m_vertexBuffer->Load(list, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
+
+    GraphicsEngine::Get()->ReleaseCompiledShader();
 }
 
 void AppWindow::OnUpdate()
 {
     Window::OnUpdate();
     
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0, 0.3f, 0.4f, 1);
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0, 0.0f, 1.0f, 1);
 
     // Set the viewport target in which we draw
     RECT rc = GetClientWindowRect();
@@ -61,13 +66,14 @@ void AppWindow::OnUpdate()
 
     // Some default shader to be able to draw
     GraphicsEngine::Get()->SetShaders();
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
 
     // Set the vertices
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexBuffer(m_vertexBuffer);
 
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->DrawTriangleList(m_vertexBuffer->GetVertexListSize(), 0);
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->DrawTriangleStrip(m_vertexBuffer->GetVertexListSize(), 0);
 
-    m_swapChain->Present(false);
+    m_swapChain->Present(true);
 }
 
 void AppWindow::OnDestroy()

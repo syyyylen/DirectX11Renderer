@@ -219,6 +219,7 @@
     <ClCompile Include="GameEngine\GraphicsEngine\GraphicsEngine.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
     <ClCompile Include="GameEngine\WindowingSystem\Window.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -300,8 +301,15 @@
     <ClInclude Include="GameEngine\GraphicsEngine\GraphicsEngine.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />
     <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="App\VertexShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

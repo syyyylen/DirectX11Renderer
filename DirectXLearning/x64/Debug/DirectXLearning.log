@@ -1,0 +1,4 @@
+﻿  AppWindow.cpp
+D:\Work\Learning\DirectXLearning\DirectXLearning\GameEngine\GraphicsEngine\SwapChain\SwapChain.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+D:\Work\Learning\DirectXLearning\DirectXLearning\App\AppWindow.cpp(52,84): warning C4267: 'argument': conversion from 'size_t' to 'UINT', possible loss of data
+  DirectXLearning.vcxproj -> D:\Work\Learning\DirectXLearning\x64\Debug\DirectXLearning.exe
