@@ -4,6 +4,7 @@
 #include "DeviceContext/DeviceContext.h"
 #include "VertexBuffer/VertexBuffer.h"
 #include "VertexShader/VertexShader.h"
+#include "PixelShader/PixelShader.h"
 #include <d3dcompiler.h>
 #include <system_error>
 
@@ -97,24 +98,6 @@ bool GraphicsEngine::Release()
     return true;
 }
 
-bool GraphicsEngine::CreateShaders()
-{
-    ID3DBlob* errblob = nullptr;
-    
-    // Default Pixel Shader WIP 
-    D3DCompileFromFile(L"shader.fx", nullptr, nullptr, "psmain", "ps_5_0", NULL, NULL, &m_psblob, &errblob);
-    m_d3dDevice->CreatePixelShader(m_psblob->GetBufferPointer(), m_psblob->GetBufferSize(), nullptr, &m_ps);
-    
-    return true;
-}
-
-bool GraphicsEngine::SetShaders()
-{
-    m_immContext->PSSetShader(m_ps, nullptr, 0);
-    
-    return true;
-}
-
 bool GraphicsEngine::CompileVertexShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize)
 {
     ID3DBlob* errorBlob = nullptr;
@@ -124,7 +107,7 @@ bool GraphicsEngine::CompileVertexShader(const wchar_t* fileName, const char* en
 
     if(!SUCCEEDED(res))
     {
-        LOG("Compile from file failed ! HRESULT : ");
+        LOG("Compile Vertex Shader from file failed ! HRESULT : ");
 
         // HRESULT to msg, super usefull
         std::string errorMsg = std::system_category().message(res);
@@ -145,6 +128,40 @@ bool GraphicsEngine::CompileVertexShader(const wchar_t* fileName, const char* en
     *byteCodeSize = m_blob->GetBufferSize();
 
     LOG("Vertex Shader Compilation succeeded !");
+
+    return true;
+}
+
+bool GraphicsEngine::CompilePixelShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize)
+{
+    ID3DBlob* errorBlob = nullptr;
+    HRESULT res;
+    
+    res = D3DCompileFromFile(fileName, nullptr, nullptr, entryPointName, "ps_5_0", 0, 0, &m_blob, &errorBlob);
+
+    if(!SUCCEEDED(res))
+    {
+        LOG("Compile Pixel Shader from file failed ! HRESULT : ");
+
+        // HRESULT to msg, super usefull
+        std::string errorMsg = std::system_category().message(res);
+        LOG(errorMsg);
+
+        // blob to string with an eventual error message 
+        if (errorBlob) 
+        {
+            std::string errorMessage(static_cast<const char*>(errorBlob->GetBufferPointer()), errorBlob->GetBufferSize());
+            LOG(errorMessage);
+            errorBlob->Release();
+        }
+
+        return false;
+    }
+
+    *shaderByteCode = m_blob->GetBufferPointer();
+    *byteCodeSize = m_blob->GetBufferSize();
+
+    LOG("Pixel Shader Compilation succeeded !");
 
     return true;
 }
@@ -186,4 +203,16 @@ VertexShader* GraphicsEngine::CreateVertexShader(const void* shaderByteCode, siz
     }
     
     return vs;
+}
+
+PixelShader* GraphicsEngine::CreatePixelShader(const void* shaderByteCode, size_t shaderByteSize)
+{
+    PixelShader* ps = new PixelShader();
+    if(!ps->Init(shaderByteCode, shaderByteSize))
+    {
+        ps->Release();
+        return nullptr;
+    }
+    
+    return ps;
 }

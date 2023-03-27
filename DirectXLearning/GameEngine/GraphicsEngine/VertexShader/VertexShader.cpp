@@ -22,11 +22,11 @@ bool VertexShader::Init(const void* shaderByteCode, size_t byteCodeSize)
 {
     if(!SUCCEEDED(GraphicsEngine::Get()->m_d3dDevice->CreateVertexShader(shaderByteCode, byteCodeSize, nullptr, &m_vs)))
     {
-        LOG("Pixel Shader Init failed");
+        LOG("Vertex Shader Init failed");
         return false;
     }
 
-    LOG("Pixel Shader Init Succeeded");
+    LOG("Vertex Shader Init Succeeded");
     
     return true;
 }

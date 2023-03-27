@@ -18,6 +18,7 @@
     <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\AppWindow.h" />
@@ -28,8 +29,10 @@
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="App\VertexShader.hlsl" />
+    <FxCompile Include="App\PixelShader.hlsl" />
   </ItemGroup>
 </Project>

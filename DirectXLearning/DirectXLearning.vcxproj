@@ -217,6 +217,7 @@
     </ClCompile>
     <ClCompile Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\GraphicsEngine.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.cpp" />
@@ -299,6 +300,7 @@
     <ClInclude Include="App\AppWindow.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\GraphicsEngine.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
@@ -306,6 +308,10 @@
     <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="App\PixelShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="App\VertexShader.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

@@ -3,6 +3,7 @@
 #include "../GameEngine/GraphicsEngine/GraphicsEngine.h"
 #include "../GameEngine/GraphicsEngine/VertexBuffer/VertexBuffer.h"
 #include "../GameEngine/GraphicsEngine/VertexShader/VertexShader.h"
+#include "../GameEngine/GraphicsEngine/PixelShader/PixelShader.h"
 
 class AppWindow : public Window
 {
@@ -18,4 +19,5 @@ private:
     SwapChain* m_swapChain;
     VertexBuffer* m_vertexBuffer;
     VertexShader* m_vs;
+    PixelShader* m_ps;
 };
