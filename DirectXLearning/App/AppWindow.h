@@ -20,4 +20,9 @@ private:
     VertexBuffer* m_vertexBuffer;
     VertexShader* m_vs;
     PixelShader* m_ps;
+    ConstantBuffer* m_cb;
+
+    unsigned long m_oldTime = 0;
+    float m_deltaTime = 0.0f;
+    float m_angle = 0.0f;
 };

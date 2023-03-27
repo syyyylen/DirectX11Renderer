@@ -7,6 +7,7 @@
 #include "PixelShader/PixelShader.h"
 #include <d3dcompiler.h>
 #include <system_error>
+#include "ConstantBuffer/ConstantBuffer.h"
 
 GraphicsEngine::GraphicsEngine()
 {
@@ -191,6 +192,11 @@ DeviceContext* GraphicsEngine::GetImmediateDeviceContext()
 VertexBuffer* GraphicsEngine::CreateVertexBuffer()
 {
     return new VertexBuffer();
+}
+
+ConstantBuffer* GraphicsEngine::CreateConstantBuffer()
+{
+    return new ConstantBuffer();
 }
 
 VertexShader* GraphicsEngine::CreateVertexShader(const void* shaderByteCode, size_t shaderByteSize)

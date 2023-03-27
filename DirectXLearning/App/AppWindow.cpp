@@ -2,6 +2,7 @@
 
 #include "../GameEngine/GraphicsEngine/DeviceContext/DeviceContext.h"
 #include "../GameEngine/GraphicsEngine/SwapChain/SwapChain.h"
+#include <Windows.h>
 
 struct Vec3
 {
@@ -10,8 +11,18 @@ struct Vec3
 
 struct Vertex
 {
-    Vec3 Position;
+    Vec3 Pos;
+    Vec3 Pos1;
     Vec3 Color;
+    Vec3 Color1;
+};
+
+// DX Nvidia memory chunks of 16 bytes, so if we exceed 16 bytes we need to allocate a multiple of 16 memory
+// this line does it for us, god bless her 
+__declspec(align(16))
+struct Constant
+{
+    float Angle;
 };
 
 AppWindow::AppWindow()
@@ -33,10 +44,10 @@ void AppWindow::OnCreate()
 
     Vertex list[] =
     {
-        {-0.5f, -0.5f, 0.0f,    1,0,0},
-        {-0.5f, 0.5f, 0.0f,     0,1,0},
-        {0.5f, -0.5f, 0.0f,     0,0,1},
-        {0.5f, 0.5f, 0.0f,            1,1,0}
+        {-0.5f, -0.5f, 0.0f,    -0.32f, -0.11f, 0.0f,      0,0,0, 0,1,0},
+        {-0.5f, 0.5f, 0.0f,     -0.11f, 0.78f, 0.0f,      0,0,0, 1,1,0},
+        {0.5f, -0.5f, 0.0f,     0.75f, -0.73f, 0.0f,      0,0,0, 1,0,0},
+        {0.5f, 0.5f, 0.0f,      0.88f, 0.77f, 0.0f,      0,0,0, 0,0,1}
     };
 
     m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
@@ -55,6 +66,13 @@ void AppWindow::OnCreate()
     GraphicsEngine::Get()->CompilePixelShader(L"PixelShader.hlsl", "psmain", &shaderByteCode, &shaderSize);
     m_ps = GraphicsEngine::Get()->CreatePixelShader(shaderByteCode, shaderSize);
     GraphicsEngine::Get()->ReleaseCompiledShader();
+
+    Constant cc;
+    cc.Angle = 0.0f;
+    
+    // Constant buffer allocation
+    m_cb = GraphicsEngine::Get()->CreateConstantBuffer();
+    m_cb->Load(&cc, sizeof(Constant));
 }
 
 void AppWindow::OnUpdate()
@@ -66,6 +84,19 @@ void AppWindow::OnUpdate()
     // Set the viewport target in which we draw
     RECT rc = GetClientWindowRect();
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+
+    // shaders constants values
+    unsigned long new_time = 0;
+    if (m_oldTime)
+        new_time = ::GetTickCount() - m_oldTime;
+    m_deltaTime = new_time / 1000.0f;
+    m_oldTime = ::GetTickCount();
+    m_angle += 1.57f*m_deltaTime;
+    Constant cc;
+    cc.Angle = m_angle;
+    m_cb->Update(GraphicsEngine::Get()->GetImmediateDeviceContext(), &cc);
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
 
     // Set the shaders
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
