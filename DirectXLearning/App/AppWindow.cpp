@@ -35,18 +35,21 @@ AppWindow::~AppWindow()
 
 void AppWindow::UpdateQuadPosition()
 {
-    // time
-    unsigned long new_time = 0;
-    if (m_oldTime)
-        new_time = ::GetTickCount() - m_oldTime;
-    m_deltaTime = new_time / 1000.0f;
-    m_oldTime = ::GetTickCount();
     m_angle += 1.57f*m_deltaTime;
     Constant cc;
     cc.Angle = m_angle;
 
+    m_deltaPos += m_deltaTime / 15.0f;
+    if(m_deltaPos > 1.0f)
+        m_deltaPos = 0.0f;
+
+    m_deltaScale += m_deltaTime * 5.0f;
+
     // transformation matrices
-    cc.m_world.SetTranslation(Vector3(0, 1, 0));
+    Matrix4x4 temp;
+    cc.m_world.SetScale(Vector3::Lerp(Vector3(0.5f, 0.5f, 0.0f), Vector3(1.0f, 1.0f, 0.0f), (sin(m_deltaScale)+1.0f)/2.0f));
+    temp.SetTranslation(Vector3::Lerp(Vector3(-1.5f, -1.5f, 0), Vector3(1.5f, 1.5f, 0), m_deltaPos));
+    cc.m_world *= temp;
     cc.m_view.SetIdentity();
     cc.m_projection.SetOrthoLH((GetClientWindowRect().right - GetClientWindowRect().left) / 400.0f,
                                (GetClientWindowRect().bottom - GetClientWindowRect().top) / 400.0f,
@@ -122,6 +125,12 @@ void AppWindow::OnUpdate()
     GraphicsEngine::Get()->GetImmediateDeviceContext()->DrawTriangleStrip(m_vertexBuffer->GetVertexListSize(), 0);
 
     m_swapChain->Present(true);
+
+    // time
+    m_oldDeltaTime = m_newDeltaTime;
+    m_newDeltaTime = GetTickCount();
+    m_deltaTime = m_oldDeltaTime ? (m_newDeltaTime - m_oldDeltaTime) / 1000.0f : 0;
+    m_totalTime += m_deltaTime;
 }
 
 void AppWindow::OnDestroy()

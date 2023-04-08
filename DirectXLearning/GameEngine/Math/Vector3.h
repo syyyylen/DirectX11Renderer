@@ -19,7 +19,16 @@ public:
     {
     }
 
-    
+    static Vector3 Lerp(const Vector3& start, const Vector3& end, float t)
+    {
+        Vector3 v;
+        
+        v.X = start.X*(1.0f - t) + end.X*t;
+        v.Y = start.Y*(1.0f - t) + end.Y*t;
+        v.Z = start.Z*(1.0f - t) + end.Z*t;
+
+        return v;
+    }
 
 public:
     float X, Y, Z;
