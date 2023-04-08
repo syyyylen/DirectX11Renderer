@@ -3,18 +3,15 @@
 #include "../GameEngine/GraphicsEngine/DeviceContext/DeviceContext.h"
 #include "../GameEngine/GraphicsEngine/SwapChain/SwapChain.h"
 #include <Windows.h>
-
-struct Vec3
-{
-    float x, y, z;
-};
+#include "../GameEngine/Math/Vector3.h"
+#include "../GameEngine/Math/Matrix4x4.h"
 
 struct Vertex
 {
-    Vec3 Pos;
-    Vec3 Pos1;
-    Vec3 Color;
-    Vec3 Color1;
+    Vector3 Pos;
+    Vector3 Pos1;
+    Vector3 Color;
+    Vector3 Color1;
 };
 
 // DX Nvidia memory chunks of 16 bytes, so if we exceed 16 bytes we need to allocate a multiple of 16 memory
@@ -22,6 +19,9 @@ struct Vertex
 __declspec(align(16))
 struct Constant
 {
+    Matrix4x4 m_world;
+    Matrix4x4 m_view;
+    Matrix4x4 m_projection;
     float Angle;
 };
 
@@ -31,6 +31,28 @@ AppWindow::AppWindow()
 
 AppWindow::~AppWindow()
 {
+}
+
+void AppWindow::UpdateQuadPosition()
+{
+    // time
+    unsigned long new_time = 0;
+    if (m_oldTime)
+        new_time = ::GetTickCount() - m_oldTime;
+    m_deltaTime = new_time / 1000.0f;
+    m_oldTime = ::GetTickCount();
+    m_angle += 1.57f*m_deltaTime;
+    Constant cc;
+    cc.Angle = m_angle;
+
+    // transformation matrices
+    cc.m_world.SetTranslation(Vector3(0, 1, 0));
+    cc.m_view.SetIdentity();
+    cc.m_projection.SetOrthoLH((GetClientWindowRect().right - GetClientWindowRect().left) / 400.0f,
+                               (GetClientWindowRect().bottom - GetClientWindowRect().top) / 400.0f,
+                               -4.0f, 4.0f);
+    
+    m_cb->Update(GraphicsEngine::Get()->GetImmediateDeviceContext(), &cc);
 }
 
 void AppWindow::OnCreate()
@@ -44,10 +66,10 @@ void AppWindow::OnCreate()
 
     Vertex list[] =
     {
-        {-0.5f, -0.5f, 0.0f,    -0.32f, -0.11f, 0.0f,      0,0,0, 0,1,0},
-        {-0.5f, 0.5f, 0.0f,     -0.11f, 0.78f, 0.0f,      0,0,0, 1,1,0},
-        {0.5f, -0.5f, 0.0f,     0.75f, -0.73f, 0.0f,      0,0,0, 1,0,0},
-        {0.5f, 0.5f, 0.0f,      0.88f, 0.77f, 0.0f,      0,0,0, 0,0,1}
+        {Vector3(-0.5f, -0.5f, 0.0f),    Vector3(-0.32f, -0.11f, 0.0f),      Vector3(0,0,0), Vector3(0,1,0)},
+        {Vector3(-0.5f, 0.5f, 0.0f),     Vector3(-0.11f, 0.78f, 0.0f),      Vector3(0,0,0), Vector3(1,1,0)},
+        {Vector3(0.5f, -0.5f, 0.0f),     Vector3(0.75f, -0.73f, 0.0f),      Vector3(0,0,0), Vector3(1,0,0)},
+        {Vector3(0.5f, 0.5f, 0.0f),      Vector3(0.88f, 0.77f, 0.0f),      Vector3(0,0,0), Vector3(0,0,1)}
     };
 
     m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
@@ -85,16 +107,9 @@ void AppWindow::OnUpdate()
     RECT rc = GetClientWindowRect();
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
-    // shaders constants values
-    unsigned long new_time = 0;
-    if (m_oldTime)
-        new_time = ::GetTickCount() - m_oldTime;
-    m_deltaTime = new_time / 1000.0f;
-    m_oldTime = ::GetTickCount();
-    m_angle += 1.57f*m_deltaTime;
-    Constant cc;
-    cc.Angle = m_angle;
-    m_cb->Update(GraphicsEngine::Get()->GetImmediateDeviceContext(), &cc);
+    // Shader constants 
+    UpdateQuadPosition();
+    
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
 

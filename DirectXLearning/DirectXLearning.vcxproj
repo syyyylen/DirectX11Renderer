@@ -307,6 +307,8 @@
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />
+    <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
+    <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
   </ItemGroup>
   <ItemGroup>
