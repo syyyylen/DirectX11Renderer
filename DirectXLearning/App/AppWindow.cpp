@@ -5,6 +5,9 @@
 #include <Windows.h>
 #include "../GameEngine/Math/Vector3.h"
 #include "../GameEngine/Math/Matrix4x4.h"
+#include "../imgui_implem/imgui_impl_dx11.h"
+#include "../imgui_implem/imgui_impl_win32.h"
+
 
 struct Vertex
 {
@@ -63,7 +66,7 @@ void AppWindow::OnCreate()
     Window::OnCreate();
     GraphicsEngine::Get()->Init();
     m_swapChain = GraphicsEngine::Get()->CreateSwapChain();
-    
+
     RECT rc = GetClientWindowRect();
     m_swapChain->Init(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
@@ -98,6 +101,20 @@ void AppWindow::OnCreate()
     // Constant buffer allocation
     m_cb = GraphicsEngine::Get()->CreateConstantBuffer();
     m_cb->Load(&cc, sizeof(Constant));
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplWin32_Init(m_hwnd); 
+    ImGui_ImplDX11_Init(GraphicsEngine::Get()->GetDevice(), GraphicsEngine::Get()->GetDeviceContext());
 }
 
 void AppWindow::OnUpdate()
@@ -131,6 +148,23 @@ void AppWindow::OnUpdate()
     m_newDeltaTime = GetTickCount();
     m_deltaTime = m_oldDeltaTime ? (m_newDeltaTime - m_oldDeltaTime) / 1000.0f : 0;
     m_totalTime += m_deltaTime;
+
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+    bool ShowDemoWindow = true;
+    if (ShowDemoWindow)
+        ImGui::ShowDemoWindow(&ShowDemoWindow);
+
+    // Rendering
+    ImGui::Render();
+    GraphicsEngine::Get()->GetDeviceContext()->OMSetRenderTargets(1, m_swapChain->GetRTVLValue(), nullptr);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    m_swapChain->Present(0); // Present with vsync
+    //g_pSwapChain->Present(0, 0); // Present without vsync
 }
 
 void AppWindow::OnDestroy()
@@ -140,5 +174,8 @@ void AppWindow::OnDestroy()
     m_vertexBuffer->Release();
     m_vs->Release();
     m_ps->Release();
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
     GraphicsEngine::Get()->Release();
 }

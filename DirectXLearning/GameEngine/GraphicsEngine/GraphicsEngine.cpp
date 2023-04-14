@@ -184,6 +184,16 @@ SwapChain* GraphicsEngine::CreateSwapChain()
     return new SwapChain();
 }
 
+ID3D11Device* GraphicsEngine::GetDevice()
+{
+    return m_d3dDevice;
+}
+
+ID3D11DeviceContext* GraphicsEngine::GetDeviceContext()
+{
+    return m_immContext;
+}
+
 DeviceContext* GraphicsEngine::GetImmediateDeviceContext()
 {
     return m_immDeviceContext;

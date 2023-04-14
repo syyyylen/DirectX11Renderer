@@ -75,3 +75,13 @@ bool SwapChain::Present(bool vsync)
     
     return true;
 }
+
+ID3D11RenderTargetView* SwapChain::GetRTV()
+{
+    return m_rtv;
+}
+
+ID3D11RenderTargetView** SwapChain::GetRTVLValue()
+{
+    return &m_rtv;
+}

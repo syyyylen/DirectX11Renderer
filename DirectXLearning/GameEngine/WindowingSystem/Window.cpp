@@ -1,6 +1,7 @@
 ﻿#include "Window.h"
 
 #include "../GraphicsEngine/DeviceContext/DeviceContext.h"
+#include "../../imgui_implem/imgui_impl_win32.h"
 
 //Window* window = nullptr;
 
@@ -12,8 +13,14 @@ Window::~Window()
 {
 }
 
+// Forward declare message handler from imgui_impl_win32.cpp
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+        return true;
+    
     switch(msg)
     {
         case WM_CREATE:
@@ -77,7 +84,7 @@ bool Window::Init()
 
     // Set this flag to true to indicate that the window is running
     m_isRunning = true;
-    
+
     return true;
 }
 
@@ -92,15 +99,14 @@ bool Window::Release()
 bool Window::BroadCast()
 {
     MSG msg;
+    while(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE) > 0)
+    {
+        ::TranslateMessage(&msg);
+        ::DispatchMessageW(&msg);
+    }
 
     OnUpdate();
     
-    while(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE) > 0)
-    {
-        TranslateMessage(&msg);
-        DispatchMessageW(&msg);
-    }
-
     Sleep(1);
     
     return true;

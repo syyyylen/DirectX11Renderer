@@ -15,6 +15,9 @@ public:
 
     bool Present(bool vsync);
 
+    ID3D11RenderTargetView* GetRTV();
+    ID3D11RenderTargetView** GetRTVLValue();
+
 private:
     IDXGISwapChain* m_swapChain;
     ID3D11RenderTargetView* m_rtv;
