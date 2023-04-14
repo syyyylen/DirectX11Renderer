@@ -8,7 +8,6 @@
 #include "../imgui_implem/imgui_impl_dx11.h"
 #include "../imgui_implem/imgui_impl_win32.h"
 
-
 struct Vertex
 {
     Vector3 Pos;
@@ -36,17 +35,21 @@ AppWindow::~AppWindow()
 {
 }
 
+static float ColorScalar = 2.0f;
+static float ScaleScalar = 5.0f;
+static float PosScalar = 15.0f;
+
 void AppWindow::UpdateQuadPosition()
 {
-    m_angle += 1.57f*m_deltaTime;
+    m_angle += ColorScalar*m_deltaTime;
     Constant cc;
     cc.Angle = m_angle;
 
-    m_deltaPos += m_deltaTime / 15.0f;
+    m_deltaPos += m_deltaTime / PosScalar;
     if(m_deltaPos > 1.0f)
         m_deltaPos = 0.0f;
 
-    m_deltaScale += m_deltaTime * 5.0f;
+    m_deltaScale += m_deltaTime * ScaleScalar;
 
     // transformation matrices
     Matrix4x4 temp;
@@ -70,12 +73,13 @@ void AppWindow::OnCreate()
     RECT rc = GetClientWindowRect();
     m_swapChain->Init(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
+    Vector3 StartColor(0.0f, 0.0f, 0.0f);
     Vertex list[] =
     {
-        {Vector3(-0.5f, -0.5f, 0.0f),    Vector3(-0.32f, -0.11f, 0.0f),      Vector3(0,0,0), Vector3(0,1,0)},
-        {Vector3(-0.5f, 0.5f, 0.0f),     Vector3(-0.11f, 0.78f, 0.0f),      Vector3(0,0,0), Vector3(1,1,0)},
-        {Vector3(0.5f, -0.5f, 0.0f),     Vector3(0.75f, -0.73f, 0.0f),      Vector3(0,0,0), Vector3(1,0,0)},
-        {Vector3(0.5f, 0.5f, 0.0f),      Vector3(0.88f, 0.77f, 0.0f),      Vector3(0,0,0), Vector3(0,0,1)}
+        {Vector3(-0.5f, -0.5f, 0.0f),    Vector3(-0.32f, -0.11f, 0.0f),      StartColor, Vector3(0,1,0)},
+        {Vector3(-0.5f, 0.5f, 0.0f),     Vector3(-0.11f, 0.78f, 0.0f),      StartColor, Vector3(1,1,0)},
+        {Vector3(0.5f, -0.5f, 0.0f),     Vector3(0.75f, -0.73f, 0.0f),      StartColor, Vector3(1,0,0)},
+        {Vector3(0.5f, 0.5f, 0.0f),      Vector3(0.88f, 0.77f, 0.0f),      StartColor, Vector3(0,0,1)}
     };
 
     m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
@@ -154,17 +158,22 @@ void AppWindow::OnUpdate()
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
 
-    // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-    bool ShowDemoWindow = true;
-    if (ShowDemoWindow)
-        ImGui::ShowDemoWindow(&ShowDemoWindow);
+    { // My imgui test window
+        static float f = 0.0f;
+        static int counter = 0;
+        ImGui::Begin("ImGui test window");                  
+        ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);            
+        ImGui::SliderFloat("ScaleSpeed", &ScaleScalar, 0.0f, 10.0f);            
+        ImGui::SliderFloat("PosSpeed", &PosScalar, 0.0f, 30.0f);            
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
 
     // Rendering
     ImGui::Render();
     GraphicsEngine::Get()->GetDeviceContext()->OMSetRenderTargets(1, m_swapChain->GetRTVLValue(), nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     m_swapChain->Present(0); // Present with vsync
-    //g_pSwapChain->Present(0, 0); // Present without vsync
 }
 
 void AppWindow::OnDestroy()
