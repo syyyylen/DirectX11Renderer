@@ -37,44 +37,50 @@ AppWindow::~AppWindow()
 }
 
 static float ColorScalar = 2.0f;
-static float RotationScalar = 2.0f;
-static float PosScalar = 15.0f;
 
-static float Sensivity = 1.5f;
+static float MouseSensivity = 2.0f;
+static float MoveSpeed = 2.0f;
+static float StrafeMoveSpeed = 1.0f;
+
+static float InputsDownScalar = 0.03f;
 
 
-void AppWindow::UpdateQuadPosition()
+void AppWindow::Update()
 {
+    // Color changing 
     m_angle += ColorScalar*m_deltaTime;
     Constant cc;
     cc.Angle = m_angle;
 
-    m_deltaPos += m_deltaTime / PosScalar;
-    if(m_deltaPos > 1.0f)
-        m_deltaPos = 0.0f;
+    // Transformation matrices
+    
+    cc.m_world.SetIdentity();
 
-    m_deltaRotation += m_deltaTime * RotationScalar;
-
-    // transformation matrices
+    Matrix4x4 worldCam;
     Matrix4x4 temp;
-    cc.m_world.SetScale(Vector3(m_scaleCube, m_scaleCube, m_scaleCube));
 
-    temp.SetIdentity();
-    temp.SetRotationZ(0.0f);
-    cc.m_world *= temp;
-
-    temp.SetIdentity();
-    temp.SetRotationY(m_rotationY);
-    cc.m_world *= temp;
-
+    worldCam.SetIdentity();
     temp.SetIdentity();
     temp.SetRotationX(m_rotationX);
-    cc.m_world *= temp;
+    worldCam *= temp;
+    temp.SetIdentity();
+    temp.SetRotationY(m_rotationY);
+    worldCam *= temp;
+
+    Vector3 newPos = m_worldCam.GetTranslation() + worldCam.GetZDirection() * (m_camForward * (MoveSpeed * InputsDownScalar));
+    newPos = newPos + worldCam.GetXDirection() * (m_camRight * (StrafeMoveSpeed * InputsDownScalar));
+    worldCam.SetTranslation(newPos);
+    m_worldCam = worldCam;
+    worldCam.Inverse();
+    cc.m_view = worldCam;
+
+    int width = GetClientWindowRect().right - GetClientWindowRect().left;
+    int height = GetClientWindowRect().bottom - GetClientWindowRect().top;
     
-    cc.m_view.SetIdentity();
-    cc.m_projection.SetOrthoLH((GetClientWindowRect().right - GetClientWindowRect().left) / 400.0f,
-                               (GetClientWindowRect().bottom - GetClientWindowRect().top) / 400.0f,
-                               -4.0f, 4.0f);
+    // Orthographic cam 
+    // cc.m_projection.SetOrthoLH(width/400.0f, height/400.0f, -4.0f, 4.0f);
+
+    cc.m_projection.SetPerspectiveFovLH(1.57f, ((float)width/(float)height), 0.1f, 100.0f);
     
     m_cb->Update(GraphicsEngine::Get()->GetImmediateDeviceContext(), &cc);
 }
@@ -83,11 +89,14 @@ void AppWindow::OnCreate()
 {
     Window::OnCreate();
     InputSystem::Get()->AddListener(this);
+    InputSystem::Get()->ShowCursor(false);
     GraphicsEngine::Get()->Init();
     m_swapChain = GraphicsEngine::Get()->CreateSwapChain();
 
     RECT rc = GetClientWindowRect();
     m_swapChain->Init(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
+
+    m_worldCam.SetTranslation(Vector3(0.0f, 0.0f, -2.0f));
 
     Vertex vertexList[] =
     {
@@ -175,14 +184,14 @@ void AppWindow::OnUpdate()
     Window::OnUpdate();
     InputSystem::Get()->Update();
     
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 1.0f, 1.0f, 1.0f, 1);
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0.0f, 0.3f,0.4f, 1);
 
     // Set the viewport target in which we draw
     RECT rc = GetClientWindowRect();
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
     // Shader constants 
-    UpdateQuadPosition();
+    Update();
     
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
@@ -215,7 +224,9 @@ void AppWindow::OnUpdate()
     { // My imgui test window
         ImGui::Begin("ImGui test window");                  
         ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);
-        ImGui::SliderFloat("Sensivity", &Sensivity, 0.1f, 10.0f);            
+        ImGui::SliderFloat("Sensivity", &MouseSensivity, 0.1f, 10.0f);            
+        ImGui::SliderFloat("MoveSpeed", &MoveSpeed, 0.1f, 10.0f);            
+        ImGui::SliderFloat("StrafeMoveSpeed", &StrafeMoveSpeed, 0.1f, 10.0f);            
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
@@ -256,49 +267,74 @@ void AppWindow::OnKeyDown(int key)
 {
     if(key == 'Z')
     {
-        m_rotationX += Sensivity * m_deltaTime;
+        m_camForward = 1.0f;
     }
     else if(key == 'S')
     {
-        m_rotationX -= Sensivity * m_deltaTime;
+        m_camForward = -1.0f;
     }
     else if(key == 'Q')
     {
-        m_rotationY += Sensivity * m_deltaTime;
+        m_camRight = -1.0f;
     }
     else if(key == 'D')
     {
-        m_rotationY -= Sensivity * m_deltaTime;
+        m_camRight = 1.0f;
+    }
+    else if(key == 'E' && m_EKeyLocked == false)
+    {
+        m_isMouseLocked = !m_isMouseLocked;
+        m_isMouseLocked ? LOG("Mouse Locked") : LOG("Mouse Unlocked");
+        m_EKeyLocked = true;
     }
 }
 
 void AppWindow::OnKeyUp(int key)
 {
-    
+    m_camForward = 0.0f;
+    m_camRight = 0.0f;
+
+    if(key == 'E')
+        m_EKeyLocked = false;
 }
 
-void AppWindow::OnMouseMove(const Point& mouseDelta)
+void AppWindow::OnMouseMove(const Point& mousePosition)
 {
-    m_rotationX -= mouseDelta.Y * m_deltaTime;
-    m_rotationY -= mouseDelta.X * m_deltaTime;
+    if(m_isMouseLocked) // Mouse Locked & Hidden while not in UI and moving inside the scene
+    {
+        int width = GetClientWindowRect().right - GetClientWindowRect().left;
+        int height = GetClientWindowRect().bottom - GetClientWindowRect().top;
+    
+        m_rotationX += (mousePosition.Y - (height / 2.0f)) * m_deltaTime * (MouseSensivity * InputsDownScalar);
+        m_rotationY += (mousePosition.X - (width / 2.0f)) * m_deltaTime * (MouseSensivity * InputsDownScalar);
+
+        InputSystem::Get()->SetCursorPosition(Point(width/2.0f, height/2.0f));
+        if(InputSystem::Get()->IsCursorVisible())
+            InputSystem::Get()->ShowCursor(false);
+    }
+    else // Mouse Visible when E key pressed to move in UI  TODO find a better keymapping
+    {
+        if(!InputSystem::Get()->IsCursorVisible())
+            InputSystem::Get()->ShowCursor(true);
+    }
 }
 
 void AppWindow::OnLeftMouseDown(const Point& mousePos)
 {
-    m_scaleCube = 0.5f;
+    
 }
 
 void AppWindow::OnRightMouseDown(const Point& mousePos)
 {
-    m_scaleCube = 1.5f;
+    
 }
 
 void AppWindow::OnLeftMouseUp(const Point& mousePos)
 {
-    m_scaleCube = 1.0;
+    
 }
 
 void AppWindow::OnRightMouseUp(const Point& mousePos)
 {
-    m_scaleCube = 1.0;
+    
 }

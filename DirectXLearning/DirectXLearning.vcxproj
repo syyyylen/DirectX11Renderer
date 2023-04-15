@@ -682,6 +682,7 @@
     <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
     <ClInclude Include="GameEngine\Math\Point.h" />
     <ClInclude Include="GameEngine\Math\Vector3.h" />
+    <ClInclude Include="GameEngine\Math\Vector4.h" />
     <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
     <ClInclude Include="imgui_implem\imgui_impl_dx11.h" />
     <ClInclude Include="imgui_implem\imgui_impl_win32.h" />

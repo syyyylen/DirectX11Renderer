@@ -16,6 +16,10 @@ public:
     void AddListener(InputListener* Listener);
     void RemoveListener(InputListener* Listener);
 
+    void SetCursorPosition(const Point& pos);
+    void ShowCursor(bool show);
+    bool IsCursorVisible();
+
 private:
     std::unordered_set<InputListener*> m_listenersSet;
     unsigned char m_keys_state[256] = {};

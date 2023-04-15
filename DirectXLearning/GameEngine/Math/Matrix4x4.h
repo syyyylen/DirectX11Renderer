@@ -2,6 +2,7 @@
 #include <memory>
 
 #include "Vector3.h"
+#include "Vector4.h"
 
 class Matrix4x4
 {
@@ -23,9 +24,13 @@ public:
         m_mat[3][3] = 1.0f;
     }
 
+    void SetMatrix(const Matrix4x4& matrix)
+    {
+        ::memcpy(m_mat, matrix.m_mat, sizeof(float) * 16);
+    }
+
     void SetTranslation(const Vector3& translation)
     {
-        SetIdentity();
         m_mat[3][0] = translation.X;
         m_mat[3][1] = translation.Y;
         m_mat[3][2] = translation.Z;
@@ -33,7 +38,6 @@ public:
 
     void SetScale(const Vector3& scale)
     {
-        SetIdentity();
         m_mat[0][0] = scale.X;
         m_mat[1][1] = scale.Y;
         m_mat[2][2] = scale.Z;
@@ -63,6 +67,17 @@ public:
         m_mat[1][1] = cos(z);
     }
 
+    void SetPerspectiveFovLH(float fov, float aspect, float znear, float zfar)
+    {
+        float yscale = 1.0f / tan(fov / 2.0f);
+        float xscale = yscale / aspect;
+        m_mat[0][0] = xscale;
+        m_mat[1][1] = yscale;
+        m_mat[2][2] = zfar / (zfar - znear);
+        m_mat[2][3] = 1.0f;
+        m_mat[3][2] = (-znear*zfar)/ (zfar - znear);
+    }
+
     void SetOrthoLH(float width, float height, float nearPlane, float farPlane)
     {
         SetIdentity();
@@ -70,6 +85,56 @@ public:
         m_mat[1][1] = 2.0f / height;
         m_mat[2][2] = 1.0f / (farPlane - nearPlane);
         m_mat[3][2] = -(nearPlane / (farPlane - nearPlane));
+    }
+
+    float GetDeterminant()
+    {
+        Vector4 minor, v1, v2, v3;
+        float det;
+
+        v1 = Vector4(this->m_mat[0][0], this->m_mat[1][0], this->m_mat[2][0], this->m_mat[3][0]);
+        v2 = Vector4(this->m_mat[0][1], this->m_mat[1][1], this->m_mat[2][1], this->m_mat[3][1]);
+        v3 = Vector4(this->m_mat[0][2], this->m_mat[1][2], this->m_mat[2][2], this->m_mat[3][2]);
+
+
+        minor.Cross(v1, v2, v3);
+        det = -(this->m_mat[0][3] * minor.X + this->m_mat[1][3] * minor.Y + this->m_mat[2][3] * minor.Z + this->m_mat[3][3] * minor.W);
+        return det;
+    }
+
+
+    void Inverse()
+    {
+        int a, i, j;
+        Matrix4x4 out;
+        Vector4 v, vec[3];
+        float det = 0.0f;
+
+        det = this->GetDeterminant();
+        if (!det) return;
+        for (i = 0; i<4; i++)
+        {
+            for (j = 0; j<4; j++)
+            {
+                if (j != i)
+                {
+                    a = j;
+                    if (j > i) a = a - 1;
+                    vec[a].X = (this->m_mat[j][0]);
+                    vec[a].Y = (this->m_mat[j][1]);
+                    vec[a].Z = (this->m_mat[j][2]);
+                    vec[a].W = (this->m_mat[j][3]);
+                }
+            }
+            v.Cross(vec[0], vec[1], vec[2]);
+
+            out.m_mat[0][i] = pow(-1.0f, i) * v.X / det;
+            out.m_mat[1][i] = pow(-1.0f, i) * v.Y / det;
+            out.m_mat[2][i] = pow(-1.0f, i) * v.Z / det;
+            out.m_mat[3][i] = pow(-1.0f, i) * v.W / det;
+        }
+
+        this->SetMatrix(out);
     }
 
     void operator *=(const Matrix4x4& matrix)
@@ -85,6 +150,19 @@ public:
             }
         }
         memcpy(m_mat, out.m_mat, sizeof(float) * 16);
+    }
+
+    Vector3 GetZDirection()
+    {
+        return Vector3(m_mat[2][0], m_mat[2][1], m_mat[2][2]);
+    }
+    Vector3 GetXDirection()
+    {
+        return Vector3(m_mat[0][0], m_mat[0][1], m_mat[0][2]);
+    }
+    Vector3 GetTranslation()
+    {
+        return Vector3(m_mat[3][0], m_mat[3][1], m_mat[3][2]);
     }
 
 private:

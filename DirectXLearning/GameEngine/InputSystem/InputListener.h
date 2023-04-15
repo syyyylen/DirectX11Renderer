@@ -19,7 +19,7 @@ public:
     virtual void OnKeyUp(int key) = 0;
 
     // Mouse pure virtual callbacks
-    virtual void OnMouseMove(const Point& mouseDelta) = 0;
+    virtual void OnMouseMove(const Point& mousePosition) = 0;
     virtual void OnLeftMouseDown(const Point& mousePos) = 0;
     virtual void OnRightMouseDown(const Point& mousePos) = 0;
     virtual void OnLeftMouseUp(const Point& mousePos) = 0;

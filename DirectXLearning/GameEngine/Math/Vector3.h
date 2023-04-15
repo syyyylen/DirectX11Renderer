@@ -30,6 +30,16 @@ public:
         return v;
     }
 
+    Vector3 operator *(float num)
+    {
+        return Vector3(X*num, Y*num, Z*num);
+    }
+
+    Vector3 operator +(Vector3 vec)
+    {
+        return Vector3(X+vec.X, Y+vec.Y, Z+vec.Z);
+    }
+
 public:
     float X, Y, Z;
     
