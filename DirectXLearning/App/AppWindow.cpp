@@ -35,7 +35,7 @@ AppWindow::~AppWindow()
 }
 
 static float ColorScalar = 2.0f;
-static float ScaleScalar = 5.0f;
+static float RotationScalar = 5.0f;
 static float PosScalar = 15.0f;
 
 void AppWindow::UpdateQuadPosition()
@@ -48,15 +48,23 @@ void AppWindow::UpdateQuadPosition()
     if(m_deltaPos > 1.0f)
         m_deltaPos = 0.0f;
 
-    m_deltaScale += m_deltaTime * ScaleScalar;
+    m_deltaRotation += m_deltaTime * RotationScalar;
 
     // transformation matrices
-    // Matrix4x4 temp;
-    // cc.m_world.SetScale(Vector3::Lerp(Vector3(0.5f, 0.5f, 0.0f), Vector3(1.0f, 1.0f, 0.0f), (sin(m_deltaScale)+1.0f)/2.0f));
-    // temp.SetTranslation(Vector3::Lerp(Vector3(-1.5f, -1.5f, 0), Vector3(1.5f, 1.5f, 0), m_deltaPos));
-    //cc.m_world *= temp;
-
+    Matrix4x4 temp;
     cc.m_world.SetScale(Vector3(1, 1, 1));
+
+    temp.SetIdentity();
+    temp.SetRotationZ(m_deltaRotation);
+    cc.m_world *= temp;
+
+    temp.SetIdentity();
+    temp.SetRotationY(m_deltaRotation);
+    cc.m_world *= temp;
+
+    temp.SetIdentity();
+    temp.SetRotationX(m_deltaRotation);
+    cc.m_world *= temp;
     
     cc.m_view.SetIdentity();
     cc.m_projection.SetOrthoLH((GetClientWindowRect().right - GetClientWindowRect().left) / 400.0f,
@@ -200,7 +208,7 @@ void AppWindow::OnUpdate()
     { // My imgui test window
         ImGui::Begin("ImGui test window");                  
         ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);            
-        ImGui::SliderFloat("ScaleSpeed", &ScaleScalar, 0.0f, 10.0f);            
+        ImGui::SliderFloat("ScaleSpeed", &RotationScalar, 0.0f, 10.0f);            
         ImGui::SliderFloat("PosSpeed", &PosScalar, 0.0f, 30.0f);            
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();

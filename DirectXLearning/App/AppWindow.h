@@ -35,5 +35,5 @@ private:
     float m_totalTime = 0.0f;
 
     float m_deltaPos = 0.0f;
-    float m_deltaScale = 0.0f;
+    float m_deltaRotation = 0.0f;
 };
