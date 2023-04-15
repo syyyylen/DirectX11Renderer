@@ -218,6 +218,7 @@
     <ClCompile Include="GameEngine\GraphicsEngine\ConstantBuffer\ConstantBuffer.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\GraphicsEngine.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\IndexBuffer\IndexBuffer.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
@@ -669,6 +670,7 @@
     <ClInclude Include="GameEngine\GraphicsEngine\ConstantBuffer\ConstantBuffer.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\GraphicsEngine.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\IndexBuffer\IndexBuffer.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />

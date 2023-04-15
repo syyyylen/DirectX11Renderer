@@ -11,7 +11,6 @@
 struct Vertex
 {
     Vector3 Pos;
-    Vector3 Pos1;
     Vector3 Color;
     Vector3 Color1;
 };
@@ -52,10 +51,13 @@ void AppWindow::UpdateQuadPosition()
     m_deltaScale += m_deltaTime * ScaleScalar;
 
     // transformation matrices
-    Matrix4x4 temp;
-    cc.m_world.SetScale(Vector3::Lerp(Vector3(0.5f, 0.5f, 0.0f), Vector3(1.0f, 1.0f, 0.0f), (sin(m_deltaScale)+1.0f)/2.0f));
-    temp.SetTranslation(Vector3::Lerp(Vector3(-1.5f, -1.5f, 0), Vector3(1.5f, 1.5f, 0), m_deltaPos));
-    cc.m_world *= temp;
+    // Matrix4x4 temp;
+    // cc.m_world.SetScale(Vector3::Lerp(Vector3(0.5f, 0.5f, 0.0f), Vector3(1.0f, 1.0f, 0.0f), (sin(m_deltaScale)+1.0f)/2.0f));
+    // temp.SetTranslation(Vector3::Lerp(Vector3(-1.5f, -1.5f, 0), Vector3(1.5f, 1.5f, 0), m_deltaPos));
+    //cc.m_world *= temp;
+
+    cc.m_world.SetScale(Vector3(1, 1, 1));
+    
     cc.m_view.SetIdentity();
     cc.m_projection.SetOrthoLH((GetClientWindowRect().right - GetClientWindowRect().left) / 400.0f,
                                (GetClientWindowRect().bottom - GetClientWindowRect().top) / 400.0f,
@@ -73,17 +75,50 @@ void AppWindow::OnCreate()
     RECT rc = GetClientWindowRect();
     m_swapChain->Init(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
-    Vector3 StartColor(0.0f, 0.0f, 0.0f);
-    Vertex list[] =
+    Vertex vertexList[] =
     {
-        {Vector3(-0.5f, -0.5f, 0.0f),    Vector3(-0.32f, -0.11f, 0.0f),      StartColor, Vector3(0,1,0)},
-        {Vector3(-0.5f, 0.5f, 0.0f),     Vector3(-0.11f, 0.78f, 0.0f),      StartColor, Vector3(1,1,0)},
-        {Vector3(0.5f, -0.5f, 0.0f),     Vector3(0.75f, -0.73f, 0.0f),      StartColor, Vector3(1,0,0)},
-        {Vector3(0.5f, 0.5f, 0.0f),      Vector3(0.88f, 0.77f, 0.0f),      StartColor, Vector3(0,0,1)}
+        //X - Y - Z
+        //FRONT FACE
+        {Vector3(-0.5f,-0.5f,-0.5f),    Vector3(1,0,0),  Vector3(0.2f,0,0) },
+        {Vector3(-0.5f,0.5f,-0.5f),    Vector3(1,1,0), Vector3(0.2f,0.2f,0) },
+        { Vector3(0.5f,0.5f,-0.5f),   Vector3(1,1,0),  Vector3(0.2f,0.2f,0) },
+        { Vector3(0.5f,-0.5f,-0.5f),     Vector3(1,0,0), Vector3(0.2f,0,0) },
+
+        //BACK FACE
+        { Vector3(0.5f,-0.5f,0.5f),    Vector3(0,1,0), Vector3(0,0.2f,0) },
+        { Vector3(0.5f,0.5f,0.5f),    Vector3(0,1,1), Vector3(0,0.2f,0.2f) },
+        { Vector3(-0.5f,0.5f,0.5f),   Vector3(0,1,1),  Vector3(0,0.2f,0.2f) },
+        { Vector3(-0.5f,-0.5f,0.5f),     Vector3(0,1,0), Vector3(0,0.2f,0) }
     };
 
     m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
-    UINT listSize = ARRAYSIZE(list);
+    UINT listSize = ARRAYSIZE(vertexList);
+
+    unsigned int index_list[]=
+    {
+        //FRONT SIDE
+        0,1,2,  //FIRST TRIANGLE
+        2,3,0,  //SECOND TRIANGLE
+        //BACK SIDE
+        4,5,6,
+        6,7,4,
+        //TOP SIDE
+        1,6,5,
+        5,2,1,
+        //BOTTOM SIDE
+        7,0,3,
+        3,4,7,
+        //RIGHT SIDE
+        3,2,5,
+        5,4,3,
+        //LEFT SIDE
+        7,6,1,
+        1,0,7
+    };
+
+    m_indexBuffer = GraphicsEngine::Get()->CreateIndexBuffer();
+    UINT indexListSize = ARRAYSIZE(index_list);
+    m_indexBuffer->Load(index_list, indexListSize);
 
     void* shaderByteCode = nullptr;
     size_t shaderSize = 0;
@@ -91,7 +126,7 @@ void AppWindow::OnCreate()
     // Vertex Shader compilation & creation
     GraphicsEngine::Get()->CompileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &shaderSize);
     m_vs = GraphicsEngine::Get()->CreateVertexShader(shaderByteCode, shaderSize);
-    m_vertexBuffer->Load(list, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
+    m_vertexBuffer->Load(vertexList, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
     GraphicsEngine::Get()->ReleaseCompiledShader();
 
     // Pixel Shader compilation & creation
@@ -141,9 +176,13 @@ void AppWindow::OnUpdate()
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetPixelShader(m_ps);
 
-    // Set the vertices
+    // Set the vertices of the triangle to draw
     GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexBuffer(m_vertexBuffer);
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->DrawTriangleStrip(m_vertexBuffer->GetVertexListSize(), 0);
+    // Set the indices of the triangle to draw
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetIndexBuffer(m_indexBuffer);
+
+    // finally draw
+    GraphicsEngine::Get()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_indexBuffer->GetIndexListSize(), 0, 0);
 
     m_swapChain->Present(true);
 
@@ -159,8 +198,6 @@ void AppWindow::OnUpdate()
     ImGui::NewFrame();
 
     { // My imgui test window
-        static float f = 0.0f;
-        static int counter = 0;
         ImGui::Begin("ImGui test window");                  
         ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);            
         ImGui::SliderFloat("ScaleSpeed", &ScaleScalar, 0.0f, 10.0f);            
@@ -181,6 +218,8 @@ void AppWindow::OnDestroy()
     Window::OnDestroy();
     m_swapChain->Release();
     m_vertexBuffer->Release();
+    m_indexBuffer->Release();
+    m_cb->Release();
     m_vs->Release();
     m_ps->Release();
     ImGui_ImplDX11_Shutdown();

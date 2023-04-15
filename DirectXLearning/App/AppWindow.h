@@ -2,6 +2,7 @@
 #include "../GameEngine/WindowingSystem/Window.h"
 #include "../GameEngine/GraphicsEngine/GraphicsEngine.h"
 #include "../GameEngine/GraphicsEngine/VertexBuffer/VertexBuffer.h"
+#include "../GameEngine/GraphicsEngine/IndexBuffer/IndexBuffer.h"
 #include "../GameEngine/GraphicsEngine/VertexShader/VertexShader.h"
 #include "../GameEngine/GraphicsEngine/PixelShader/PixelShader.h"
 
@@ -21,6 +22,7 @@ public:
 private:
     SwapChain* m_swapChain;
     VertexBuffer* m_vertexBuffer;
+    IndexBuffer* m_indexBuffer;
     VertexShader* m_vs;
     PixelShader* m_ps;
     ConstantBuffer* m_cb;
