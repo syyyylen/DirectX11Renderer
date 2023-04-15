@@ -680,6 +680,7 @@
     <ClInclude Include="GameEngine\InputSystem\InputSystem.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />
     <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
+    <ClInclude Include="GameEngine\Math\Point.h" />
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
     <ClInclude Include="imgui_implem\imgui_impl_dx11.h" />

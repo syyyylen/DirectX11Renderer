@@ -42,6 +42,7 @@ static float PosScalar = 15.0f;
 
 static float Sensivity = 1.5f;
 
+
 void AppWindow::UpdateQuadPosition()
 {
     m_angle += ColorScalar*m_deltaTime;
@@ -56,7 +57,7 @@ void AppWindow::UpdateQuadPosition()
 
     // transformation matrices
     Matrix4x4 temp;
-    cc.m_world.SetScale(Vector3(1, 1, 1));
+    cc.m_world.SetScale(Vector3(m_scaleCube, m_scaleCube, m_scaleCube));
 
     temp.SetIdentity();
     temp.SetRotationZ(0.0f);
@@ -213,10 +214,8 @@ void AppWindow::OnUpdate()
 
     { // My imgui test window
         ImGui::Begin("ImGui test window");                  
-        ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);            
+        ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);
         ImGui::SliderFloat("Sensivity", &Sensivity, 0.1f, 10.0f);            
-        //ImGui::SliderFloat("ScaleSpeed", &RotationScalar, 0.0f, 5.0f);            
-        //ImGui::SliderFloat("PosSpeed", &PosScalar, 0.0f, 30.0f);            
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
@@ -243,6 +242,16 @@ void AppWindow::OnDestroy()
     GraphicsEngine::Get()->Release();
 }
 
+void AppWindow::OnFocus()
+{
+    InputSystem::Get()->AddListener(this);
+}
+
+void AppWindow::OnLooseFocus()
+{
+    InputSystem::Get()->RemoveListener(this);
+}
+
 void AppWindow::OnKeyDown(int key)
 {
     if(key == 'Z')
@@ -266,4 +275,30 @@ void AppWindow::OnKeyDown(int key)
 void AppWindow::OnKeyUp(int key)
 {
     
+}
+
+void AppWindow::OnMouseMove(const Point& mouseDelta)
+{
+    m_rotationX -= mouseDelta.Y * m_deltaTime;
+    m_rotationY -= mouseDelta.X * m_deltaTime;
+}
+
+void AppWindow::OnLeftMouseDown(const Point& mousePos)
+{
+    m_scaleCube = 0.5f;
+}
+
+void AppWindow::OnRightMouseDown(const Point& mousePos)
+{
+    m_scaleCube = 1.5f;
+}
+
+void AppWindow::OnLeftMouseUp(const Point& mousePos)
+{
+    m_scaleCube = 1.0;
+}
+
+void AppWindow::OnRightMouseUp(const Point& mousePos)
+{
+    m_scaleCube = 1.0;
 }

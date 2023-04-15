@@ -16,13 +16,21 @@ public:
 
     void UpdateQuadPosition();
 
+    // Window overrides
     virtual void OnCreate() override;
     virtual void OnUpdate() override;
     virtual void OnDestroy() override;
+    virtual void OnFocus() override;
+    virtual void OnLooseFocus() override;
 
     // InputListener interface implem
     void OnKeyDown(int key) override;
     void OnKeyUp(int key) override;
+    void OnMouseMove(const Point& mouseDelta) override;
+    virtual void OnLeftMouseDown(const Point& mousePos) override;
+    virtual void OnRightMouseDown(const Point& mousePos) override;
+    virtual void OnLeftMouseUp(const Point& mousePos) override;
+    virtual void OnRightMouseUp(const Point& mousePos) override;
 
 private:
     SwapChain* m_swapChain;
@@ -44,4 +52,6 @@ private:
 
     float m_rotationX = 0.0f;
     float m_rotationY = 0.0f;
+
+    float m_scaleCube = 1.0;
 };

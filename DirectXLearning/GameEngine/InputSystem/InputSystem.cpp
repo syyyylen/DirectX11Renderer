@@ -17,6 +17,28 @@ InputSystem* InputSystem::Get()
 
 void InputSystem::Update()
 {
+    POINT current_mouse_pos = {};
+    ::GetCursorPos(&current_mouse_pos);
+
+    if (m_first_time)
+    {
+        m_old_mouse_pos = Point(current_mouse_pos.x, current_mouse_pos.y);
+        m_first_time = false;
+    }
+
+    if (current_mouse_pos.x != m_old_mouse_pos.X || current_mouse_pos.y != m_old_mouse_pos.Y)
+    {
+        //THERE IS MOUSE MOVE EVENT
+        std::unordered_set<InputListener*>::iterator it = m_listenersSet.begin();
+
+        while (it != m_listenersSet.end())
+        {
+            (*it)->OnMouseMove(Point(current_mouse_pos.x - m_old_mouse_pos.X, current_mouse_pos.y - m_old_mouse_pos.Y));
+            ++it;
+        }
+    }
+    m_old_mouse_pos = Point(current_mouse_pos.x, current_mouse_pos.y);
+    
     if (::GetKeyboardState(m_keys_state))
     {
         for (unsigned int i = 0; i < 256; i++)
@@ -28,7 +50,19 @@ void InputSystem::Update()
 
                 while (it != m_listenersSet.end())
                 {
-                    (*it)->OnKeyDown(i);
+                    if (i == VK_LBUTTON)
+                    {
+                        if (m_keys_state[i] != m_old_keys_state[i]) 
+                            (*it)->OnLeftMouseDown(Point(current_mouse_pos.x, current_mouse_pos.y));
+                    }
+                    else if (i == VK_RBUTTON)
+                    {
+                        if (m_keys_state[i] != m_old_keys_state[i])
+                            (*it)->OnRightMouseDown(Point(current_mouse_pos.x, current_mouse_pos.y));
+                    }
+                    else
+                        (*it)->OnKeyDown(i);
+
                     ++it;
                 }
             }
@@ -40,7 +74,13 @@ void InputSystem::Update()
 
                     while (it != m_listenersSet.end())
                     {
-                        (*it)->OnKeyUp(i);
+                        if (i == VK_LBUTTON)
+                            (*it)->OnLeftMouseUp(Point(current_mouse_pos.x, current_mouse_pos.y));
+                        else if (i == VK_RBUTTON)
+                            (*it)->OnRightMouseUp(Point(current_mouse_pos.x, current_mouse_pos.y));
+                        else
+                            (*it)->OnKeyUp(i);
+                        
                         ++it;
                     }
                 }

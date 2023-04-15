@@ -18,6 +18,9 @@ public:
     virtual void OnUpdate();
     virtual void OnDestroy();
 
+    virtual void OnFocus();
+    virtual void OnLooseFocus();
+
     RECT GetClientWindowRect();
     void SetHWND(HWND hwnd);
 
