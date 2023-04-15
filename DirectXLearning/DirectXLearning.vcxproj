@@ -223,6 +223,7 @@
     <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.cpp" />
+    <ClCompile Include="GameEngine\InputSystem\InputSystem.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
     <ClCompile Include="GameEngine\WindowingSystem\Window.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
@@ -675,6 +676,8 @@
     <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
+    <ClInclude Include="GameEngine\InputSystem\InputListener.h" />
+    <ClInclude Include="GameEngine\InputSystem\InputSystem.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />
     <ClInclude Include="GameEngine\Math\Matrix4x4.h" />
     <ClInclude Include="GameEngine\Math\Vector3.h" />

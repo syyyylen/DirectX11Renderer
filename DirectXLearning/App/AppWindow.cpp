@@ -3,6 +3,8 @@
 #include "../GameEngine/GraphicsEngine/DeviceContext/DeviceContext.h"
 #include "../GameEngine/GraphicsEngine/SwapChain/SwapChain.h"
 #include <Windows.h>
+
+#include "../GameEngine/InputSystem/InputSystem.h"
 #include "../GameEngine/Math/Vector3.h"
 #include "../GameEngine/Math/Matrix4x4.h"
 #include "../imgui_implem/imgui_impl_dx11.h"
@@ -35,8 +37,10 @@ AppWindow::~AppWindow()
 }
 
 static float ColorScalar = 2.0f;
-static float RotationScalar = 5.0f;
+static float RotationScalar = 2.0f;
 static float PosScalar = 15.0f;
+
+static float Sensivity = 1.5f;
 
 void AppWindow::UpdateQuadPosition()
 {
@@ -55,15 +59,15 @@ void AppWindow::UpdateQuadPosition()
     cc.m_world.SetScale(Vector3(1, 1, 1));
 
     temp.SetIdentity();
-    temp.SetRotationZ(m_deltaRotation);
+    temp.SetRotationZ(0.0f);
     cc.m_world *= temp;
 
     temp.SetIdentity();
-    temp.SetRotationY(m_deltaRotation);
+    temp.SetRotationY(m_rotationY);
     cc.m_world *= temp;
 
     temp.SetIdentity();
-    temp.SetRotationX(m_deltaRotation);
+    temp.SetRotationX(m_rotationX);
     cc.m_world *= temp;
     
     cc.m_view.SetIdentity();
@@ -77,6 +81,7 @@ void AppWindow::UpdateQuadPosition()
 void AppWindow::OnCreate()
 {
     Window::OnCreate();
+    InputSystem::Get()->AddListener(this);
     GraphicsEngine::Get()->Init();
     m_swapChain = GraphicsEngine::Get()->CreateSwapChain();
 
@@ -167,6 +172,7 @@ void AppWindow::OnCreate()
 void AppWindow::OnUpdate()
 {
     Window::OnUpdate();
+    InputSystem::Get()->Update();
     
     GraphicsEngine::Get()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 1.0f, 1.0f, 1.0f, 1);
 
@@ -208,8 +214,9 @@ void AppWindow::OnUpdate()
     { // My imgui test window
         ImGui::Begin("ImGui test window");                  
         ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);            
-        ImGui::SliderFloat("ScaleSpeed", &RotationScalar, 0.0f, 10.0f);            
-        ImGui::SliderFloat("PosSpeed", &PosScalar, 0.0f, 30.0f);            
+        ImGui::SliderFloat("Sensivity", &Sensivity, 0.1f, 10.0f);            
+        //ImGui::SliderFloat("ScaleSpeed", &RotationScalar, 0.0f, 5.0f);            
+        //ImGui::SliderFloat("PosSpeed", &PosScalar, 0.0f, 30.0f);            
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
@@ -234,4 +241,29 @@ void AppWindow::OnDestroy()
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
     GraphicsEngine::Get()->Release();
+}
+
+void AppWindow::OnKeyDown(int key)
+{
+    if(key == 'Z')
+    {
+        m_rotationX += Sensivity * m_deltaTime;
+    }
+    else if(key == 'S')
+    {
+        m_rotationX -= Sensivity * m_deltaTime;
+    }
+    else if(key == 'Q')
+    {
+        m_rotationY += Sensivity * m_deltaTime;
+    }
+    else if(key == 'D')
+    {
+        m_rotationY -= Sensivity * m_deltaTime;
+    }
+}
+
+void AppWindow::OnKeyUp(int key)
+{
+    
 }

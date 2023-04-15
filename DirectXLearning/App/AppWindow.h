@@ -5,9 +5,10 @@
 #include "../GameEngine/GraphicsEngine/IndexBuffer/IndexBuffer.h"
 #include "../GameEngine/GraphicsEngine/VertexShader/VertexShader.h"
 #include "../GameEngine/GraphicsEngine/PixelShader/PixelShader.h"
+#include "../GameEngine/InputSystem/InputListener.h"
 
 
-class AppWindow : public Window
+class AppWindow : public Window, public InputListener
 {
 public:
     AppWindow();
@@ -18,6 +19,10 @@ public:
     virtual void OnCreate() override;
     virtual void OnUpdate() override;
     virtual void OnDestroy() override;
+
+    // InputListener interface implem
+    void OnKeyDown(int key) override;
+    void OnKeyUp(int key) override;
 
 private:
     SwapChain* m_swapChain;
@@ -36,4 +41,7 @@ private:
 
     float m_deltaPos = 0.0f;
     float m_deltaRotation = 0.0f;
+
+    float m_rotationX = 0.0f;
+    float m_rotationY = 0.0f;
 };
