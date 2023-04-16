@@ -215,14 +215,15 @@
       <SDLCheck>true</SDLCheck>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="GameEngine\GraphicsEngine\ConstantBuffer\ConstantBuffer.cpp" />
-    <ClCompile Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\GraphicsEngine.cpp" />
-    <ClCompile Include="GameEngine\GraphicsEngine\IndexBuffer\IndexBuffer.cpp" />
-    <ClCompile Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.cpp" />
-    <ClCompile Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.cpp" />
-    <ClCompile Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.cpp" />
-    <ClCompile Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\ConstantBuffer\ConstantBuffer.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\DeviceContext\DeviceContext.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\IndexBuffer\IndexBuffer.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\PixelShader\PixelShader.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\Renderer.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\SwapChain\SwapChain.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\VertexBuffer\VertexBuffer.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\Renderer\VertexShader\VertexShader.cpp" />
     <ClCompile Include="GameEngine\InputSystem\InputSystem.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
     <ClCompile Include="GameEngine\WindowingSystem\Window.cpp">
@@ -668,14 +669,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\AppWindow.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\ConstantBuffer\ConstantBuffer.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\DeviceContext\DeviceContext.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\GraphicsEngine.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\IndexBuffer\IndexBuffer.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\PixelShader\PixelShader.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\SwapChain\SwapChain.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\VertexBuffer\VertexBuffer.h" />
-    <ClInclude Include="GameEngine\GraphicsEngine\VertexShader\VertexShader.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Prerequisites.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\ConstantBuffer\ConstantBuffer.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\DeviceContext\DeviceContext.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\IndexBuffer\IndexBuffer.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\PixelShader\PixelShader.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\Renderer.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\SwapChain\SwapChain.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\VertexBuffer\VertexBuffer.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\Renderer\VertexShader\VertexShader.h" />
     <ClInclude Include="GameEngine\InputSystem\InputListener.h" />
     <ClInclude Include="GameEngine\InputSystem\InputSystem.h" />
     <ClInclude Include="GameEngine\Logger\Log.h" />

@@ -1,10 +1,10 @@
 ﻿#pragma once
 #include "../GameEngine/WindowingSystem/Window.h"
 #include "../GameEngine/GraphicsEngine/GraphicsEngine.h"
-#include "../GameEngine/GraphicsEngine/VertexBuffer/VertexBuffer.h"
-#include "../GameEngine/GraphicsEngine/IndexBuffer/IndexBuffer.h"
-#include "../GameEngine/GraphicsEngine/VertexShader/VertexShader.h"
-#include "../GameEngine/GraphicsEngine/PixelShader/PixelShader.h"
+#include "../GameEngine/GraphicsEngine/Renderer/VertexBuffer/VertexBuffer.h"
+#include "../GameEngine/GraphicsEngine/Renderer/IndexBuffer/IndexBuffer.h"
+#include "../GameEngine/GraphicsEngine/Renderer/VertexShader/VertexShader.h"
+#include "../GameEngine/GraphicsEngine/Renderer/PixelShader/PixelShader.h"
 #include "../GameEngine/InputSystem/InputListener.h"
 #include "../GameEngine/Math/Matrix4x4.h"
 

@@ -1,6 +1,6 @@
 ﻿#include "Window.h"
 
-#include "../GraphicsEngine/DeviceContext/DeviceContext.h"
+#include "../GraphicsEngine/Renderer/DeviceContext/DeviceContext.h"
 #include "../../imgui_implem/imgui_impl_win32.h"
 
 //Window* window = nullptr;

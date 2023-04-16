@@ -1,7 +1,7 @@
 ﻿#include "AppWindow.h"
 
-#include "../GameEngine/GraphicsEngine/DeviceContext/DeviceContext.h"
-#include "../GameEngine/GraphicsEngine/SwapChain/SwapChain.h"
+#include "../GameEngine/GraphicsEngine/Renderer/DeviceContext/DeviceContext.h"
+#include "../GameEngine/GraphicsEngine/Renderer/SwapChain/SwapChain.h"
 #include <Windows.h>
 
 #include "../GameEngine/InputSystem/InputSystem.h"
@@ -38,12 +38,11 @@ AppWindow::~AppWindow()
 
 static float ColorScalar = 2.0f;
 
-static float MouseSensivity = 2.0f;
+static float MouseSensivity = 3.0f;
 static float MoveSpeed = 2.0f;
-static float StrafeMoveSpeed = 1.0f;
+static float StrafeMoveSpeed = 2.0f;
 
 static float InputsDownScalar = 0.03f;
-
 
 void AppWindow::Update()
 {
@@ -82,7 +81,7 @@ void AppWindow::Update()
 
     cc.m_projection.SetPerspectiveFovLH(1.57f, ((float)width/(float)height), 0.1f, 100.0f);
     
-    m_cb->Update(GraphicsEngine::Get()->GetImmediateDeviceContext(), &cc);
+    m_cb->Update(GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext(), &cc);
 }
 
 void AppWindow::OnCreate()
@@ -91,11 +90,10 @@ void AppWindow::OnCreate()
     InputSystem::Get()->AddListener(this);
     InputSystem::Get()->ShowCursor(false);
     GraphicsEngine::Get()->Init();
-    m_swapChain = GraphicsEngine::Get()->CreateSwapChain();
-
     RECT rc = GetClientWindowRect();
-    m_swapChain->Init(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
+    m_swapChain = GraphicsEngine::Get()->GetRenderer()->CreateSwapChain(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
+    // Cam spawnloc 
     m_worldCam.SetTranslation(Vector3(0.0f, 0.0f, -2.0f));
 
     Vertex vertexList[] =
@@ -114,7 +112,6 @@ void AppWindow::OnCreate()
         { Vector3(-0.5f,-0.5f,0.5f),     Vector3(0,1,0), Vector3(0,0.2f,0) }
     };
 
-    m_vertexBuffer = GraphicsEngine::Get()->CreateVertexBuffer();
     UINT listSize = ARRAYSIZE(vertexList);
 
     unsigned int index_list[]=
@@ -139,30 +136,28 @@ void AppWindow::OnCreate()
         1,0,7
     };
 
-    m_indexBuffer = GraphicsEngine::Get()->CreateIndexBuffer();
     UINT indexListSize = ARRAYSIZE(index_list);
-    m_indexBuffer->Load(index_list, indexListSize);
+    m_indexBuffer = GraphicsEngine::Get()->GetRenderer()->CreateIndexBuffer(index_list, indexListSize);
 
     void* shaderByteCode = nullptr;
     size_t shaderSize = 0;
 
-    // Vertex Shader compilation & creation
-    GraphicsEngine::Get()->CompileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &shaderSize);
-    m_vs = GraphicsEngine::Get()->CreateVertexShader(shaderByteCode, shaderSize);
-    m_vertexBuffer->Load(vertexList, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
-    GraphicsEngine::Get()->ReleaseCompiledShader();
+    // Vertex Shader/Buffer compilation & creation
+    GraphicsEngine::Get()->GetRenderer()->CompileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &shaderSize);
+    m_vs = GraphicsEngine::Get()->GetRenderer()->CreateVertexShader(shaderByteCode, shaderSize);
+    m_vertexBuffer = GraphicsEngine::Get()->GetRenderer()->CreateVertexBuffer(vertexList, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
+    GraphicsEngine::Get()->GetRenderer()->ReleaseCompiledShader();
 
     // Pixel Shader compilation & creation
-    GraphicsEngine::Get()->CompilePixelShader(L"PixelShader.hlsl", "psmain", &shaderByteCode, &shaderSize);
-    m_ps = GraphicsEngine::Get()->CreatePixelShader(shaderByteCode, shaderSize);
-    GraphicsEngine::Get()->ReleaseCompiledShader();
+    GraphicsEngine::Get()->GetRenderer()->CompilePixelShader(L"PixelShader.hlsl", "psmain", &shaderByteCode, &shaderSize);
+    m_ps = GraphicsEngine::Get()->GetRenderer()->CreatePixelShader(shaderByteCode, shaderSize);
+    GraphicsEngine::Get()->GetRenderer()->ReleaseCompiledShader();
 
     Constant cc;
     cc.Angle = 0.0f;
     
     // Constant buffer allocation
-    m_cb = GraphicsEngine::Get()->CreateConstantBuffer();
-    m_cb->Load(&cc, sizeof(Constant));
+    m_cb = GraphicsEngine::Get()->GetRenderer()->CreateConstantBuffer(&cc, sizeof(Constant));
 
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -176,7 +171,7 @@ void AppWindow::OnCreate()
 
     // Setup Platform/Renderer backends
     ImGui_ImplWin32_Init(m_hwnd); 
-    ImGui_ImplDX11_Init(GraphicsEngine::Get()->GetDevice(), GraphicsEngine::Get()->GetDeviceContext());
+    ImGui_ImplDX11_Init(GraphicsEngine::Get()->GetRenderer()->GetDevice(), GraphicsEngine::Get()->GetRenderer()->GetDeviceContext());
 }
 
 void AppWindow::OnUpdate()
@@ -184,29 +179,29 @@ void AppWindow::OnUpdate()
     Window::OnUpdate();
     InputSystem::Get()->Update();
     
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0.0f, 0.3f,0.4f, 1);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0.0f, 0.3f,0.4f, 1);
 
     // Set the viewport target in which we draw
     RECT rc = GetClientWindowRect();
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
     // Shader constants 
     Update();
     
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
 
     // Set the shaders
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetPixelShader(m_ps);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetPixelShader(m_ps);
 
     // Set the vertices of the triangle to draw
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetVertexBuffer(m_vertexBuffer);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexBuffer(m_vertexBuffer);
     // Set the indices of the triangle to draw
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->SetIndexBuffer(m_indexBuffer);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetIndexBuffer(m_indexBuffer);
 
     // finally draw
-    GraphicsEngine::Get()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_indexBuffer->GetIndexListSize(), 0, 0);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_indexBuffer->GetIndexListSize(), 0, 0);
 
     m_swapChain->Present(true);
 
@@ -233,7 +228,7 @@ void AppWindow::OnUpdate()
 
     // Rendering
     ImGui::Render();
-    GraphicsEngine::Get()->GetDeviceContext()->OMSetRenderTargets(1, m_swapChain->GetRTVLValue(), nullptr);
+    GraphicsEngine::Get()->GetRenderer()->GetDeviceContext()->OMSetRenderTargets(1, m_swapChain->GetRTVLValue(), nullptr);
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
     m_swapChain->Present(0); // Present with vsync
 }
@@ -241,12 +236,6 @@ void AppWindow::OnUpdate()
 void AppWindow::OnDestroy()
 {
     Window::OnDestroy();
-    m_swapChain->Release();
-    m_vertexBuffer->Release();
-    m_indexBuffer->Release();
-    m_cb->Release();
-    m_vs->Release();
-    m_ps->Release();
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -284,7 +273,6 @@ void AppWindow::OnKeyDown(int key)
     else if(key == 'E' && m_EKeyLocked == false)
     {
         m_isMouseLocked = !m_isMouseLocked;
-        m_isMouseLocked ? LOG("Mouse Locked") : LOG("Mouse Unlocked");
         m_EKeyLocked = true;
     }
 }
