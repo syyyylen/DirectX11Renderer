@@ -7,11 +7,19 @@ GraphicsEngine* GraphicsEngine::m_graphicsEngine = nullptr;
 
 GraphicsEngine::GraphicsEngine()
 {
+    // Instancing Subsystems
+    
     try
     {
         m_renderer = new Renderer();
     }
-    catch (...) {throw std::exception("Graphics Engine creation failed");}
+    catch (...) {throw std::exception("Renderer creation failed");}
+
+    try
+    {
+        m_textureManager = new TextureManager();
+    }
+    catch (...) {throw std::exception("Texture Manager creation failed");}
     
     LOG("Graphics Engine Initialized");
 }
@@ -19,6 +27,7 @@ GraphicsEngine::GraphicsEngine()
 GraphicsEngine::~GraphicsEngine()
 {
     m_graphicsEngine = nullptr;
+    delete m_textureManager;
     delete m_renderer;
     
     LOG("Graphics Engine Destroyed");
@@ -27,6 +36,11 @@ GraphicsEngine::~GraphicsEngine()
 Renderer* GraphicsEngine::GetRenderer()
 {
     return m_renderer;
+}
+
+TextureManager* GraphicsEngine::GetTextureMgr()
+{
+    return m_textureManager;
 }
 
 GraphicsEngine* GraphicsEngine::Get()
@@ -46,6 +60,6 @@ void GraphicsEngine::Release()
 {
     if(!m_graphicsEngine)
         return;
-    
+
     delete m_graphicsEngine;
 }

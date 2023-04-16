@@ -41,6 +41,7 @@ private:
     std::shared_ptr<PixelShader> m_ps;
     std::shared_ptr<ConstantBuffer> m_cb;
 
+    // Time
     unsigned long m_oldDeltaTime = 0.0f;
     unsigned long m_newDeltaTime = 0.0f;
     float m_deltaTime = 0.0f;
@@ -48,15 +49,19 @@ private:
 
     float m_totalTime = 0.0f;
 
+    // Experiments
     float m_rotationX = 0.0f;
     float m_rotationY = 0.0f;
-
-    float m_scaleCube = 1.0;
-
+    
+    // Camera 
     float m_camForward = 0.0f;
     float m_camRight = 0.0f;
     Matrix4x4 m_worldCam;
 
+    // UI state when E key pressed
     bool m_EKeyLocked = false;
     bool m_isMouseLocked = true;
+
+    // Tex
+    std::shared_ptr<Texture> m_woodTexture;
 };

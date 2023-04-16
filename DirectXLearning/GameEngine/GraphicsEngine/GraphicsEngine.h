@@ -3,6 +3,7 @@
 #include <d3dcompiler.h>
 
 #include "Renderer/Renderer.h"
+#include "ResourceManager/TextureManager/TextureManager.h"
 
 class SwapChain;
 class DeviceContext;
@@ -20,10 +21,12 @@ private:
     
 public:
     Renderer* GetRenderer();
+    TextureManager* GetTextureMgr();
     static GraphicsEngine* Get();
     static void Create();
     static void Release();
 
     Renderer* m_renderer = nullptr;
+    TextureManager* m_textureManager = nullptr;
     static GraphicsEngine* m_graphicsEngine;
 };

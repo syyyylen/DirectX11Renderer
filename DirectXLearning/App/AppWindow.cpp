@@ -6,6 +6,7 @@
 
 #include "../GameEngine/InputSystem/InputSystem.h"
 #include "../GameEngine/Math/Vector3.h"
+#include "../GameEngine/Math/Vector2.h"
 #include "../GameEngine/Math/Matrix4x4.h"
 #include "../imgui_implem/imgui_impl_dx11.h"
 #include "../imgui_implem/imgui_impl_win32.h"
@@ -13,8 +14,7 @@
 struct Vertex
 {
     Vector3 Pos;
-    Vector3 Color;
-    Vector3 Color1;
+    Vector2 texcoord;
 };
 
 // DX Nvidia memory chunks of 16 bytes, so if we exceed 16 bytes we need to allocate a multiple of 16 memory
@@ -87,31 +87,78 @@ void AppWindow::Update()
 void AppWindow::OnCreate()
 {
     Window::OnCreate();
+    
     InputSystem::Get()->AddListener(this);
     InputSystem::Get()->ShowCursor(false);
+
+    m_woodTexture = GraphicsEngine::Get()->GetTextureMgr()->CreateTextureFromFile(L"Assets\\Textures\\wood.jpg");
+    
     RECT rc = GetClientWindowRect();
     m_swapChain = GraphicsEngine::Get()->GetRenderer()->CreateSwapChain(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
     // Cam spawnloc 
     m_worldCam.SetTranslation(Vector3(0.0f, 0.0f, -2.0f));
 
-    Vertex vertexList[] =
+    Vector3 position_list[] =
+    {
+        { Vector3(-0.5f,-0.5f,-0.5f)},
+        { Vector3(-0.5f,0.5f,-0.5f) },
+        { Vector3(0.5f,0.5f,-0.5f) },
+        { Vector3(0.5f,-0.5f,-0.5f)},
+
+        //BACK FACE
+        { Vector3(0.5f,-0.5f,0.5f) },
+        { Vector3(0.5f,0.5f,0.5f) },
+        { Vector3(-0.5f,0.5f,0.5f)},
+        { Vector3(-0.5f,-0.5f,0.5f) }
+    };
+
+    Vector2 texcoord_list[] =
+    {
+        { Vector2(0.0f,0.0f) },
+        { Vector2(0.0f,1.0f) },
+        { Vector2(1.0f,0.0f) },
+        { Vector2(1.0f,1.0f) }
+    };
+
+    Vertex vertex_list[] = 
     {
         //X - Y - Z
         //FRONT FACE
-        {Vector3(-0.5f,-0.5f,-0.5f),    Vector3(1,0,0),  Vector3(0.2f,0,0) },
-        {Vector3(-0.5f,0.5f,-0.5f),    Vector3(1,1,0), Vector3(0.2f,0.2f,0) },
-        { Vector3(0.5f,0.5f,-0.5f),   Vector3(1,1,0),  Vector3(0.2f,0.2f,0) },
-        { Vector3(0.5f,-0.5f,-0.5f),     Vector3(1,0,0), Vector3(0.2f,0,0) },
+        { position_list[0],texcoord_list[1] },
+        { position_list[1],texcoord_list[0] },
+        { position_list[2],texcoord_list[2] },
+        { position_list[3],texcoord_list[3] },
 
-        //BACK FACE
-        { Vector3(0.5f,-0.5f,0.5f),    Vector3(0,1,0), Vector3(0,0.2f,0) },
-        { Vector3(0.5f,0.5f,0.5f),    Vector3(0,1,1), Vector3(0,0.2f,0.2f) },
-        { Vector3(-0.5f,0.5f,0.5f),   Vector3(0,1,1),  Vector3(0,0.2f,0.2f) },
-        { Vector3(-0.5f,-0.5f,0.5f),     Vector3(0,1,0), Vector3(0,0.2f,0) }
+
+        { position_list[4],texcoord_list[1] },
+        { position_list[5],texcoord_list[0] },
+        { position_list[6],texcoord_list[2] },
+        { position_list[7],texcoord_list[3] },
+
+
+        { position_list[1],texcoord_list[1] },
+        { position_list[6],texcoord_list[0] },
+        { position_list[5],texcoord_list[2] },
+        { position_list[2],texcoord_list[3] },
+
+        { position_list[7],texcoord_list[1] },
+        { position_list[0],texcoord_list[0] },
+        { position_list[3],texcoord_list[2] },
+        { position_list[4],texcoord_list[3] },
+
+        { position_list[3],texcoord_list[1] },
+        { position_list[2],texcoord_list[0] },
+        { position_list[5],texcoord_list[2] },
+        { position_list[4],texcoord_list[3] },
+
+        { position_list[7],texcoord_list[1] },
+        { position_list[6],texcoord_list[0] },
+        { position_list[1],texcoord_list[2] },
+        { position_list[0],texcoord_list[3] }
     };
 
-    UINT listSize = ARRAYSIZE(vertexList);
+    UINT listSize = ARRAYSIZE(vertex_list);
 
     unsigned int index_list[]=
     {
@@ -122,17 +169,17 @@ void AppWindow::OnCreate()
         4,5,6,
         6,7,4,
         //TOP SIDE
-        1,6,5,
-        5,2,1,
+        8,9,10,
+        10,11,8,
         //BOTTOM SIDE
-        7,0,3,
-        3,4,7,
+        12,13,14,
+        14,15,12,
         //RIGHT SIDE
-        3,2,5,
-        5,4,3,
+        16,17,18,
+        18,19,16,
         //LEFT SIDE
-        7,6,1,
-        1,0,7
+        20,21,22,
+        22,23,20
     };
 
     UINT indexListSize = ARRAYSIZE(index_list);
@@ -144,7 +191,7 @@ void AppWindow::OnCreate()
     // Vertex Shader/Buffer compilation & creation
     GraphicsEngine::Get()->GetRenderer()->CompileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &shaderSize);
     m_vs = GraphicsEngine::Get()->GetRenderer()->CreateVertexShader(shaderByteCode, shaderSize);
-    m_vertexBuffer = GraphicsEngine::Get()->GetRenderer()->CreateVertexBuffer(vertexList, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
+    m_vertexBuffer = GraphicsEngine::Get()->GetRenderer()->CreateVertexBuffer(vertex_list, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
     GraphicsEngine::Get()->GetRenderer()->ReleaseCompiledShader();
 
     // Pixel Shader compilation & creation
@@ -193,6 +240,10 @@ void AppWindow::OnUpdate()
     // Set the shaders
     GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
     GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetPixelShader(m_ps);
+
+    // Temp wood texture
+    if(m_woodTexture)
+        GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetTexture(m_ps, m_woodTexture);
 
     // Set the vertices of the triangle to draw
     GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexBuffer(m_vertexBuffer);
