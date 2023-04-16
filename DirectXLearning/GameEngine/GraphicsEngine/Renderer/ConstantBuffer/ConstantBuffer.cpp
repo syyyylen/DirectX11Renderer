@@ -30,7 +30,7 @@ ConstantBuffer::~ConstantBuffer()
         m_buffer->Release();
 }
 
-void ConstantBuffer::Update(DeviceContext* context, void* buffer)
+void ConstantBuffer::Update(std::shared_ptr<DeviceContext> context, void* buffer)
 {
     context->m_deviceContext->UpdateSubresource(m_buffer, NULL, NULL, buffer, NULL, NULL);
 }

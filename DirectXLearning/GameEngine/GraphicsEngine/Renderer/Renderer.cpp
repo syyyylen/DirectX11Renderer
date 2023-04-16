@@ -8,17 +8,10 @@
 #include "PixelShader/PixelShader.h"
 #include <d3dcompiler.h>
 #include <system_error>
+#include <exception>
 #include "ConstantBuffer/ConstantBuffer.h"
 
 Renderer::Renderer()
-{
-}
-
-Renderer::~Renderer()
-{
-}
-
-bool Renderer::Init()
 {
     D3D_DRIVER_TYPE driver_types[]=
     {
@@ -46,7 +39,8 @@ bool Renderer::Init()
     }
     if (FAILED(res))
     {
-        return false;
+        LOG("Renderer : Create D3D11 Device failed");
+        throw std::exception("Renderer : Create D3D11 Device failed");
     }
 
     // Changing rasterizer properties & state 
@@ -67,18 +61,16 @@ bool Renderer::Init()
     m_d3dDevice->CreateRasterizerState(&rasterizerDesc, &rasterizerState);
     m_immContext->RSSetState(rasterizerState);
 
-    m_immDeviceContext = new DeviceContext(m_immContext, this);
+    m_immDeviceContext = std::make_shared<DeviceContext>(m_immContext, this);
     
     m_d3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&m_dxgiDevice);
     m_dxgiDevice->GetParent(__uuidof(IDXGIAdapter), (void**)&m_dxgiAdapter);
     m_dxgiAdapter->GetParent(__uuidof(IDXGIFactory), (void**)&m_dxgiFactory);
 
-    LOG("Graphics Engine Initialized");
-
-    return true;
+    LOG("Renderer Initialized");
 }
 
-bool Renderer::Release()
+Renderer::~Renderer()
 {
     if(m_d3dDevice)
         m_d3dDevice->Release();
@@ -89,14 +81,10 @@ bool Renderer::Release()
     if(m_dxgiFactory)
         m_dxgiFactory->Release();
 
-    delete m_immDeviceContext;
-    
     if(m_d3dDevice)
         m_d3dDevice->Release();
 
-    LOG("Graphics Engine Released");
-    
-    return true;
+    LOG("Renderer Destroyed");
 }
 
 bool Renderer::CompileVertexShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize)
@@ -173,12 +161,12 @@ void Renderer::ReleaseCompiledShader()
         m_blob->Release();
 }
 
-SwapChain* Renderer::CreateSwapChain(HWND hwnd, UINT width, UINT height)
+std::shared_ptr<SwapChain> Renderer::CreateSwapChain(HWND hwnd, UINT width, UINT height)
 {
-    SwapChain* swapChain = nullptr;
+    std::shared_ptr<SwapChain> swapChain = nullptr;
     try
     {
-        swapChain = new SwapChain(this, hwnd, width, height);
+        swapChain = std::make_shared<SwapChain>(this, hwnd, width, height);
     }
     catch (...) {}
     return swapChain;
@@ -194,61 +182,61 @@ ID3D11DeviceContext* Renderer::GetDeviceContext()
     return m_immContext;
 }
 
-DeviceContext* Renderer::GetImmediateDeviceContext()
+std::shared_ptr<DeviceContext> Renderer::GetImmediateDeviceContext()
 {
     return m_immDeviceContext;
 }
 
-VertexBuffer* Renderer::CreateVertexBuffer(void* listVertices, UINT vertexSize, UINT listSize, void* shaderByteCode, UINT shaderByteSize)
+std::shared_ptr<VertexBuffer> Renderer::CreateVertexBuffer(void* listVertices, UINT vertexSize, UINT listSize, void* shaderByteCode, UINT shaderByteSize)
 {
-    VertexBuffer* vertexBuffer = nullptr;
+    std::shared_ptr<VertexBuffer> vertexBuffer = nullptr;
     try
     {
-        vertexBuffer = new VertexBuffer(this, listVertices, vertexSize, listSize, shaderByteCode, shaderByteSize);
+        vertexBuffer =  std::make_shared<VertexBuffer>(this, listVertices, vertexSize, listSize, shaderByteCode, shaderByteSize);
     }
     catch (...) {}
     return vertexBuffer;
 }
 
-IndexBuffer* Renderer::CreateIndexBuffer(void* listIndices, UINT listSize)
+std::shared_ptr<IndexBuffer> Renderer::CreateIndexBuffer(void* listIndices, UINT listSize)
 {
-    IndexBuffer* indexBuffer = nullptr;
+    std::shared_ptr<IndexBuffer> indexBuffer = nullptr;
     try
     {
-        indexBuffer = new IndexBuffer(this, listIndices, listSize);
+        indexBuffer = std::make_shared<IndexBuffer>(this, listIndices, listSize);
     }
     catch (...) {}
     return indexBuffer;
 }
 
-ConstantBuffer* Renderer::CreateConstantBuffer(void* buffer, UINT bufferSize)
+std::shared_ptr<ConstantBuffer> Renderer::CreateConstantBuffer(void* buffer, UINT bufferSize)
 {
-    ConstantBuffer* constantBuffer = nullptr;
+    std::shared_ptr<ConstantBuffer> constantBuffer = nullptr;
     try
     {
-        constantBuffer = new ConstantBuffer(this, buffer, bufferSize);
+        constantBuffer = std::make_shared<ConstantBuffer>(this, buffer, bufferSize);
     }
     catch (...) {}
     return constantBuffer;
 }
 
-VertexShader* Renderer::CreateVertexShader(const void* shaderByteCode, size_t shaderByteSize)
+std::shared_ptr<VertexShader> Renderer::CreateVertexShader(const void* shaderByteCode, size_t shaderByteSize)
 {
-    VertexShader* vertexShader = nullptr;
+    std::shared_ptr<VertexShader> vertexShader = nullptr;
     try
     {
-        vertexShader = new VertexShader(this, shaderByteCode, shaderByteSize);
+        vertexShader = std::make_shared<VertexShader>(this, shaderByteCode, shaderByteSize);
     }
     catch (...) {}
     return vertexShader;
 }
 
-PixelShader* Renderer::CreatePixelShader(const void* shaderByteCode, size_t shaderByteSize)
+std::shared_ptr<PixelShader> Renderer::CreatePixelShader(const void* shaderByteCode, size_t shaderByteSize)
 {
-    PixelShader* pixelShader = nullptr;
+    std::shared_ptr<PixelShader> pixelShader = nullptr;
     try
     {
-        pixelShader = new PixelShader(this, shaderByteCode, shaderByteSize);
+        pixelShader = std::make_shared<PixelShader>(this, shaderByteCode, shaderByteSize);
     }
     catch (...) {}
     return pixelShader;

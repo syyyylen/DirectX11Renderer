@@ -1,18 +1,36 @@
 ﻿#include "InputSystem.h"
 #include <Windows.h>
 
+InputSystem* InputSystem::m_inputSystem = nullptr;
+
 InputSystem::InputSystem()
 {
 }
 
 InputSystem::~InputSystem()
 {
+    m_inputSystem = nullptr;
 }
 
 InputSystem* InputSystem::Get()
 {
-    static InputSystem system;
-    return &system;
+    return m_inputSystem;
+}
+
+void InputSystem::Create()
+{
+    if(m_inputSystem)
+        throw std::exception("Input System already created");
+
+    m_inputSystem = new InputSystem();
+}
+
+void InputSystem::Release()
+{
+    if(!m_inputSystem)
+        return;
+    
+    delete m_inputSystem;
 }
 
 void InputSystem::Update()

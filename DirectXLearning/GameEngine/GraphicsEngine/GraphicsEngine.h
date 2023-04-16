@@ -14,19 +14,16 @@ class IndexBuffer;
 
 class GraphicsEngine
 {
-public:
+private: 
     GraphicsEngine();
     ~GraphicsEngine();
-
-    // Init DX11 device
-    bool Init();
-    // Release loaded ressources
-    bool Release();
-
-    Renderer* GetRenderer();
-
+    
 public:
+    Renderer* GetRenderer();
     static GraphicsEngine* Get();
+    static void Create();
+    static void Release();
 
     Renderer* m_renderer = nullptr;
+    static GraphicsEngine* m_graphicsEngine;
 };

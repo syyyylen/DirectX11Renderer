@@ -89,7 +89,6 @@ void AppWindow::OnCreate()
     Window::OnCreate();
     InputSystem::Get()->AddListener(this);
     InputSystem::Get()->ShowCursor(false);
-    GraphicsEngine::Get()->Init();
     RECT rc = GetClientWindowRect();
     m_swapChain = GraphicsEngine::Get()->GetRenderer()->CreateSwapChain(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
@@ -239,7 +238,6 @@ void AppWindow::OnDestroy()
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
-    GraphicsEngine::Get()->Release();
 }
 
 void AppWindow::OnFocus()

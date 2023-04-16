@@ -34,12 +34,12 @@ public:
     virtual void OnRightMouseUp(const Point& mousePos) override;
 
 private:
-    SwapChain* m_swapChain;
-    VertexBuffer* m_vertexBuffer;
-    IndexBuffer* m_indexBuffer;
-    VertexShader* m_vs;
-    PixelShader* m_ps;
-    ConstantBuffer* m_cb;
+    std::shared_ptr<SwapChain> m_swapChain;
+    std::shared_ptr<VertexBuffer> m_vertexBuffer;
+    std::shared_ptr<IndexBuffer> m_indexBuffer;
+    std::shared_ptr<VertexShader> m_vs;
+    std::shared_ptr<PixelShader> m_ps;
+    std::shared_ptr<ConstantBuffer> m_cb;
 
     unsigned long m_oldDeltaTime = 0.0f;
     unsigned long m_newDeltaTime = 0.0f;

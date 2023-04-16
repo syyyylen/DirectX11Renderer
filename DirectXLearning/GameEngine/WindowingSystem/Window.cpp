@@ -5,14 +5,6 @@
 
 //Window* window = nullptr;
 
-Window::Window()
-{
-}
-
-Window::~Window()
-{
-}
-
 // Forward declare message handler from imgui_impl_win32.cpp
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -23,16 +15,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     
     switch(msg)
     {
-        case WM_CREATE:
+    case WM_CREATE:
         {
-            Window* window = (Window*)((LPCREATESTRUCT)lparam)->lpCreateParams;
-            SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)window);
-            window->SetHWND(hwnd);
-            window->OnCreate();
             break;
         }
 
-        case WM_SETFOCUS:
+    case WM_SETFOCUS:
         {
             Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window)
@@ -40,7 +28,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             break;
         }
 
-        case WM_KILLFOCUS:
+    case WM_KILLFOCUS:
         {
             Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window)
@@ -48,7 +36,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             break;
         }
 
-        case WM_DESTROY:
+    case WM_DESTROY:
         {
             Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
             if(window)
@@ -57,14 +45,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             break;
         }
 
-        default:
-            return ::DefWindowProcW(hwnd, msg, wparam, lparam);
+    default:
+        return ::DefWindowProcW(hwnd, msg, wparam, lparam);
     }
 
     return NULL;
 }
 
-bool Window::Init()
+Window::Window()
 {
     // Window properties
     WNDCLASSEX wc;
@@ -81,8 +69,8 @@ bool Window::Init()
     wc.style = NULL;
     wc.lpfnWndProc = &WndProc;
 
-   if(!::RegisterClassExW(&wc))
-       return false;
+    if(!::RegisterClassExW(&wc))
+        throw std::exception("Window not created successfully");
 
     // if(!window)
     //     window = this;
@@ -92,7 +80,7 @@ bool Window::Init()
         CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768, NULL, NULL, NULL, this);
 
     if(!m_hwnd)
-        return false;
+        throw std::exception("Window not created successfully");
 
     // Show up the window
     ::ShowWindow(m_hwnd, SW_SHOW);
@@ -100,20 +88,23 @@ bool Window::Init()
 
     // Set this flag to true to indicate that the window is running
     m_isRunning = true;
-
-    return true;
 }
 
-bool Window::Release()
+Window::~Window()
 {
-    if(!::DestroyWindow(m_hwnd))
-        return false;
-
-    return true;
+    ::DestroyWindow(m_hwnd);
 }
 
 bool Window::BroadCast()
 {
+    // I don't like this at all
+    if(!m_isInit)
+    {
+        SetWindowLongPtr(m_hwnd, GWLP_USERDATA, (LONG_PTR)this);
+        OnCreate();
+        m_isInit = true;
+    }
+    
     MSG msg;
     while(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE) > 0)
     {
@@ -130,6 +121,8 @@ bool Window::BroadCast()
 
 bool Window::IsRunning()
 {
+    if(m_isRunning)
+        BroadCast();
     return m_isRunning;
 }
 
@@ -161,9 +154,4 @@ RECT Window::GetClientWindowRect()
     RECT rc;
     ::GetClientRect(m_hwnd, &rc);
     return rc;
-}
-
-void Window::SetHWND(HWND hwnd)
-{
-    m_hwnd = hwnd;
 }

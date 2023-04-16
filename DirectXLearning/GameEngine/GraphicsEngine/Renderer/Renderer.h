@@ -9,26 +9,21 @@ public:
     Renderer();
     ~Renderer();
 
-    // Init DX11 device
-    bool Init();
-    // Release loaded ressources
-    bool Release();
-
     bool CompileVertexShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize);
     bool CompilePixelShader(const wchar_t* fileName, const char* entryPointName, void** shaderByteCode, size_t* byteCodeSize);
     
     void ReleaseCompiledShader();
 
 public:
-    SwapChain* CreateSwapChain(HWND hwnd, UINT width, UINT height);
+    std::shared_ptr<SwapChain> CreateSwapChain(HWND hwnd, UINT width, UINT height);
     ID3D11Device* GetDevice();
     ID3D11DeviceContext* GetDeviceContext();
-    DeviceContext* GetImmediateDeviceContext();
-    VertexBuffer* CreateVertexBuffer(void* listVertices, UINT vertexSize, UINT listSize, void* shaderByteCode, UINT shaderByteSize);
-    IndexBuffer* CreateIndexBuffer(void* listIndices, UINT listSize);
-    ConstantBuffer* CreateConstantBuffer(void* buffer, UINT bufferSize);
-    VertexShader* CreateVertexShader(const void* shaderByteCode, size_t shaderByteSize);
-    PixelShader* CreatePixelShader(const void* shaderByteCode, size_t shaderByteSize);
+    std::shared_ptr<DeviceContext> GetImmediateDeviceContext();
+    std::shared_ptr<VertexBuffer> CreateVertexBuffer(void* listVertices, UINT vertexSize, UINT listSize, void* shaderByteCode, UINT shaderByteSize);
+    std::shared_ptr<IndexBuffer> CreateIndexBuffer(void* listIndices, UINT listSize);
+    std::shared_ptr<ConstantBuffer> CreateConstantBuffer(void* buffer, UINT bufferSize);
+    std::shared_ptr<VertexShader> CreateVertexShader(const void* shaderByteCode, size_t shaderByteSize);
+    std::shared_ptr<PixelShader> CreatePixelShader(const void* shaderByteCode, size_t shaderByteSize);
 
 private:
     ID3D11Device* m_d3dDevice;
@@ -38,7 +33,7 @@ private:
     IDXGIAdapter* m_dxgiAdapter;
     IDXGIFactory* m_dxgiFactory;
 
-    DeviceContext* m_immDeviceContext;
+    std::shared_ptr<DeviceContext> m_immDeviceContext;
 
     ID3D11DeviceContext* m_immContext;
 

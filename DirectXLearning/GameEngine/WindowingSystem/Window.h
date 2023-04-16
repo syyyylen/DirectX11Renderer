@@ -8,10 +8,6 @@ public:
     Window();
     ~Window();
     
-    bool Init();
-    bool Release();
-
-    bool BroadCast();
     bool IsRunning();
 
     virtual void OnCreate();
@@ -22,9 +18,12 @@ public:
     virtual void OnLooseFocus();
 
     RECT GetClientWindowRect();
-    void SetHWND(HWND hwnd);
+
+private:
+    bool BroadCast();
 
 protected:
     HWND m_hwnd;
     bool m_isRunning;
+    bool m_isInit;
 };

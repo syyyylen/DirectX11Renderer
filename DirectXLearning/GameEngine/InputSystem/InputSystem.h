@@ -1,16 +1,18 @@
 ﻿#pragma once
 
 #include "InputListener.h"
-#include <map>
 #include <unordered_set>
 
 class InputSystem
 {
-public:
+private:
     InputSystem();
     ~InputSystem();
 
+public:
     static InputSystem* Get();
+    static void Create();
+    static void Release();
 
     void Update();
     void AddListener(InputListener* Listener);
@@ -26,4 +28,6 @@ private:
     unsigned char m_old_keys_state[256] = {};
     Point m_old_mouse_pos;
     bool m_first_time = true;
+
+    static InputSystem* m_inputSystem;
 };

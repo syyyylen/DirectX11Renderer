@@ -9,7 +9,7 @@ public:
     ConstantBuffer(Renderer* renderer, void* buffer, UINT bufferSize);
     ~ConstantBuffer();
 
-    void Update(DeviceContext* context, void* buffer);
+    void Update(std::shared_ptr<DeviceContext> context, void* buffer);
 
 private:
     ID3D11Buffer* m_buffer;

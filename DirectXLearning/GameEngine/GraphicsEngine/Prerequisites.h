@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <memory>
 
 class SwapChain;
 class DeviceContext;
