@@ -17,7 +17,10 @@ public:
     virtual void OnFocus();
     virtual void OnLooseFocus();
 
+    virtual void OnResize();
+
     RECT GetClientWindowRect();
+    RECT GetScreenSize();
 
 private:
     bool BroadCast();

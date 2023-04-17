@@ -15,7 +15,9 @@ public:
     AppWindow();
     ~AppWindow();
 
-    void Update();
+    void UpdateShaderConstants();
+    void Render();
+    void RenderUI();
 
     // Window overrides
     virtual void OnCreate() override;
@@ -23,6 +25,7 @@ public:
     virtual void OnDestroy() override;
     virtual void OnFocus() override;
     virtual void OnLooseFocus() override;
+    virtual void OnResize() override;
 
     // InputListener interface implem
     void OnKeyDown(int key) override;
@@ -58,8 +61,10 @@ private:
     Matrix4x4 m_worldCam;
 
     // UI state when E key pressed
-    bool m_EKeyLocked = false;
     bool m_isMouseLocked = true;
+
+    // fullscreen
+    bool m_isFullscreen = false;
 
     // Tex
     std::shared_ptr<Texture> m_woodTexture;

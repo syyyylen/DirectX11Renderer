@@ -58,7 +58,7 @@ static float DiffuseLight = 0.7f;
 static float SpecularLight = 1.0f;
 static float Shininess = 30.0f;
 
-void AppWindow::Update()
+void AppWindow::UpdateShaderConstants()
 {
     Constant cc;
     cc.m_ambiantReflection = AmbiantReflection;
@@ -104,6 +104,84 @@ void AppWindow::Update()
     cc.m_projection.SetPerspectiveFovLH(1.57f, ((float)width/(float)height), 0.1f, 100.0f);
     
     m_cb->Update(GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext(), &cc);
+}
+
+void AppWindow::Render()
+{
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0.0f, 0.3f,0.4f, 1);
+
+    // Set the viewport target in which we draw
+    RECT rc = GetClientWindowRect();
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+
+    // Shader constants 
+    UpdateShaderConstants();
+    
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
+
+    // Set the shaders
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetPixelShader(m_ps);
+
+    // Temp wood texture
+    if(m_woodTexture)
+        GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetTexture(m_ps, m_woodTexture);
+
+    // Set the vertices of the triangle to draw
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexBuffer(m_mesh->GetVertexBuffer());
+    // Set the indices of the triangle to draw
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetIndexBuffer(m_mesh->GetIndexBuffer());
+
+    // finally draw
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
+
+    RenderUI();
+    
+    m_swapChain->Present(true);
+}
+
+void AppWindow::RenderUI()
+{
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
+    { // My imgui test window
+        ImGui::Begin("Movements");                  
+        ImGui::SliderFloat("Sensivity", &MouseSensivity, 0.1f, 10.0f);            
+        ImGui::SliderFloat("MoveSpeed", &MoveSpeed, 0.1f, 10.0f);            
+        ImGui::SliderFloat("StrafeMoveSpeed", &StrafeMoveSpeed, 0.1f, 10.0f);            
+        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::End();
+    }
+
+    { // ImGui Lighting settings window
+        ImGui::Begin("Lighting");
+        ImGui::SliderFloat("Rotation", &LightRotation, 0.0f, 6.0f);
+        ImGui::SliderFloat("Ambiant", &AmbiantReflection, 0.0f, 1.0f);
+        ImGui::ColorEdit3("AmbiantColor", (float*)&ImAmbiantLightColor);
+        ImGui::SliderFloat("Diffuse", &DiffuseLight, 0.0f, 5.0f);
+        ImGui::SliderFloat("Specular", &SpecularLight, 0.0f, 5.0f);
+        ImGui::SliderFloat("Shininess", &Shininess, 0.0f, 100.0f);
+        if(ImGui::Button("Reset Settings"))
+        {
+            LightRotation = 0.0f;
+            AmbiantReflection = 0.1f;
+            ImAmbiantLightColor = ImVec4(1.0, 1.0, 1.0, 1.0);
+            DiffuseLight = 0.7f;
+            SpecularLight = 1.0f;
+            Shininess = 30.0f;
+        }
+        ImGui::End();
+    }
+
+    // Rendering
+    ImGui::Render();
+    GraphicsEngine::Get()->GetRenderer()->GetDeviceContext()->OMSetRenderTargets(1, m_swapChain->GetRTVLValue(), nullptr);
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+    //m_swapChain->Present(0); // Present with vsync
 }
 
 void AppWindow::OnCreate()
@@ -158,87 +236,19 @@ void AppWindow::OnUpdate()
 {
     Window::OnUpdate();
     InputSystem::Get()->Update();
+    Render();
     
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->ClearRenderTargetColor(m_swapChain, 0.0f, 0.3f,0.4f, 1);
-
-    // Set the viewport target in which we draw
-    RECT rc = GetClientWindowRect();
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetViewportSize(rc.right - rc.left, rc.bottom - rc.top);
-
-    // Shader constants 
-    Update();
-    
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetConstantBuffer(m_vs, m_cb);
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetConstantBuffer(m_ps, m_cb);
-
-    // Set the shaders
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexShader(m_vs);
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetPixelShader(m_ps);
-
-    // Temp wood texture
-    if(m_woodTexture)
-        GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetTexture(m_ps, m_woodTexture);
-
-    // Set the vertices of the triangle to draw
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexBuffer(m_mesh->GetVertexBuffer());
-    // Set the indices of the triangle to draw
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetIndexBuffer(m_mesh->GetIndexBuffer());
-
-    // finally draw
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
-
-    m_swapChain->Present(true);
-
     // time
     m_oldDeltaTime = m_newDeltaTime;
     m_newDeltaTime = GetTickCount();
     m_deltaTime = m_oldDeltaTime ? (m_newDeltaTime - m_oldDeltaTime) / 1000.0f : 0;
     m_totalTime += m_deltaTime;
-
-    // Start the Dear ImGui frame
-    ImGui_ImplDX11_NewFrame();
-    ImGui_ImplWin32_NewFrame();
-    ImGui::NewFrame();
-
-    { // My imgui test window
-        ImGui::Begin("Movements");                  
-        ImGui::SliderFloat("Sensivity", &MouseSensivity, 0.1f, 10.0f);            
-        ImGui::SliderFloat("MoveSpeed", &MoveSpeed, 0.1f, 10.0f);            
-        ImGui::SliderFloat("StrafeMoveSpeed", &StrafeMoveSpeed, 0.1f, 10.0f);            
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
-    }
-
-    { // ImGui Lighting settings window
-        ImGui::Begin("Lighting");
-        ImGui::SliderFloat("Rotation", &LightRotation, 0.0f, 6.0f);
-        ImGui::SliderFloat("Ambiant", &AmbiantReflection, 0.0f, 1.0f);
-        ImGui::ColorEdit3("AmbiantColor", (float*)&ImAmbiantLightColor);
-        ImGui::SliderFloat("Diffuse", &DiffuseLight, 0.0f, 5.0f);
-        ImGui::SliderFloat("Specular", &SpecularLight, 0.0f, 5.0f);
-        ImGui::SliderFloat("Shininess", &Shininess, 0.0f, 100.0f);
-        if(ImGui::Button("Reset Settings"))
-        {
-            LightRotation = 0.0f;
-            AmbiantReflection = 0.1f;
-            ImAmbiantLightColor = ImVec4(1.0, 1.0, 1.0, 1.0);
-            DiffuseLight = 0.7f;
-            SpecularLight = 1.0f;
-            Shininess = 30.0f;
-        }
-        ImGui::End();
-    }
-
-    // Rendering
-    ImGui::Render();
-    GraphicsEngine::Get()->GetRenderer()->GetDeviceContext()->OMSetRenderTargets(1, m_swapChain->GetRTVLValue(), nullptr);
-    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-    m_swapChain->Present(0); // Present with vsync
 }
 
 void AppWindow::OnDestroy()
 {
     Window::OnDestroy();
+    m_swapChain->SetFullscreen(false, 1, 1);
     ImGui_ImplDX11_Shutdown();
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
@@ -252,6 +262,14 @@ void AppWindow::OnFocus()
 void AppWindow::OnLooseFocus()
 {
     InputSystem::Get()->RemoveListener(this);
+}
+
+void AppWindow::OnResize()
+{
+    RECT rc = GetClientWindowRect();
+    m_swapChain->Resize(rc.right, rc.bottom);
+    Render();
+    RenderUI();
 }
 
 void AppWindow::OnKeyDown(int key)
@@ -272,11 +290,6 @@ void AppWindow::OnKeyDown(int key)
     {
         m_camRight = 1.0f;
     }
-    else if(key == 'E' && m_EKeyLocked == false)
-    {
-        m_isMouseLocked = !m_isMouseLocked;
-        m_EKeyLocked = true;
-    }
 }
 
 void AppWindow::OnKeyUp(int key)
@@ -285,28 +298,30 @@ void AppWindow::OnKeyUp(int key)
     m_camRight = 0.0f;
 
     if(key == 'E')
-        m_EKeyLocked = false;
+    {
+        m_isMouseLocked = m_isMouseLocked ? false : true;
+        InputSystem::Get()->ShowCursor(!m_isMouseLocked);
+    }
+    else if(key == 'F')
+    {
+        m_isFullscreen = m_isFullscreen ? false : true;
+        RECT screenSize = GetScreenSize();
+        m_swapChain->SetFullscreen(m_isFullscreen, screenSize.right, screenSize.bottom);
+    }
 }
 
 void AppWindow::OnMouseMove(const Point& mousePosition)
 {
-    if(m_isMouseLocked) // Mouse Locked & Hidden while not in UI and moving inside the scene
-    {
-        int width = GetClientWindowRect().right - GetClientWindowRect().left;
-        int height = GetClientWindowRect().bottom - GetClientWindowRect().top;
+    if(!m_isMouseLocked)
+        return;
     
-        m_rotationX += (mousePosition.Y - (height / 2.0f)) * m_deltaTime * (MouseSensivity * InputsDownScalar);
-        m_rotationY += (mousePosition.X - (width / 2.0f)) * m_deltaTime * (MouseSensivity * InputsDownScalar);
+    int width = GetClientWindowRect().right - GetClientWindowRect().left;
+    int height = GetClientWindowRect().bottom - GetClientWindowRect().top;
 
-        InputSystem::Get()->SetCursorPosition(Point(width/2.0f, height/2.0f));
-        if(InputSystem::Get()->IsCursorVisible())
-            InputSystem::Get()->ShowCursor(false);
-    }
-    else // Mouse Visible when E key pressed to move in UI  TODO find a better keymapping
-    {
-        if(!InputSystem::Get()->IsCursorVisible())
-            InputSystem::Get()->ShowCursor(true);
-    }
+    m_rotationX += (mousePosition.Y - (height / 2.0f)) * m_deltaTime * (MouseSensivity * InputsDownScalar);
+    m_rotationY += (mousePosition.X - (width / 2.0f)) * m_deltaTime * (MouseSensivity * InputsDownScalar);
+
+    InputSystem::Get()->SetCursorPosition(Point(width/2.0f, height/2.0f));
 }
 
 void AppWindow::OnLeftMouseDown(const Point& mousePos)

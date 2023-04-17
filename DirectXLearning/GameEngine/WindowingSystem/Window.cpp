@@ -20,6 +20,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
             break;
         }
 
+    case WM_SIZE:
+        {
+            Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+            if(window)
+                window->OnResize();
+        }
+
     case WM_SETFOCUS:
         {
             Window* window = (Window*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
@@ -149,9 +156,21 @@ void Window::OnLooseFocus()
 {
 }
 
+void Window::OnResize()
+{
+}
+
 RECT Window::GetClientWindowRect()
 {
     RECT rc;
     ::GetClientRect(m_hwnd, &rc);
+    return rc;
+}
+
+RECT Window::GetScreenSize()
+{
+    RECT rc;
+    rc.right = ::GetSystemMetrics(SM_CXSCREEN);
+    rc.bottom = ::GetSystemMetrics(SM_CYSCREEN);
     return rc;
 }

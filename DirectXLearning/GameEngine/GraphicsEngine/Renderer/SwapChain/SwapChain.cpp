@@ -20,6 +20,7 @@ SwapChain::SwapChain(Renderer* renderer, HWND hwnd, UINT width, UINT height) : m
     desc.OutputWindow = hwnd;
     desc.SampleDesc.Count = 1;
     desc.SampleDesc.Quality = 0;
+    desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
     desc.Windowed = TRUE;
     
     HRESULT res = m_renderer->m_dxgiFactory->CreateSwapChain(d3dDevice, &desc, &m_swapChain);
@@ -30,9 +31,59 @@ SwapChain::SwapChain(Renderer* renderer, HWND hwnd, UINT width, UINT height) : m
         throw std::exception("Failed SwapChain creation");
     }
 
+    ReloadBuffers(width, height);
+}
 
+SwapChain::~SwapChain()
+{
+    if(m_rtv)
+        m_rtv->Release();
+    
+    if(m_swapChain)
+        m_swapChain->Release();
+}
+
+bool SwapChain::Present(bool vsync)
+{
+    m_swapChain->Present(vsync, NULL);
+    
+    return true;
+}
+
+void SwapChain::Resize(unsigned width, unsigned height)
+{
+    if(m_rtv)
+        m_rtv->Release();
+    
+    if(m_dsv)
+        m_dsv->Release();
+    
+    m_swapChain->ResizeBuffers(1, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+    ReloadBuffers(width, height);
+}
+
+void SwapChain::SetFullscreen(bool fullscreen, unsigned width, unsigned height)
+{
+    Resize(width, height);
+    m_swapChain->SetFullscreenState(fullscreen, nullptr);
+}
+
+ID3D11RenderTargetView* SwapChain::GetRTV()
+{
+    return m_rtv;
+}
+
+ID3D11RenderTargetView** SwapChain::GetRTVLValue()
+{
+    return &m_rtv;
+}
+
+void SwapChain::ReloadBuffers(unsigned width, unsigned height)
+{
+    ID3D11Device* d3dDevice = m_renderer->m_d3dDevice;
+    
     ID3D11Texture2D* buffer = NULL;
-    res = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&buffer);
+    HRESULT res = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&buffer);
 
     if(FAILED(res))
     {
@@ -78,32 +129,4 @@ SwapChain::SwapChain(Renderer* renderer, HWND hwnd, UINT width, UINT height) : m
     }
 
     buffer->Release();
-
-    LOG("Suceeded SwapChain creation");
-}
-
-SwapChain::~SwapChain()
-{
-    if(m_rtv)
-        m_rtv->Release();
-    
-    if(m_swapChain)
-        m_swapChain->Release();
-}
-
-bool SwapChain::Present(bool vsync)
-{
-    m_swapChain->Present(vsync, NULL);
-    
-    return true;
-}
-
-ID3D11RenderTargetView* SwapChain::GetRTV()
-{
-    return m_rtv;
-}
-
-ID3D11RenderTargetView** SwapChain::GetRTVLValue()
-{
-    return &m_rtv;
 }
