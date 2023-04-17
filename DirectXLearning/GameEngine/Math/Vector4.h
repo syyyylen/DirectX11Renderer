@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Vector3.h"
 
 class Vector4
 {
@@ -14,6 +15,11 @@ public:
     Vector4(const Vector4& v) : X(v.X), Y(v.Y), Z(v.Z), W(v.W)
     {
     }
+
+    Vector4(const Vector3& v) : X(v.X), Y(v.Y), Z(v.Z), W(1.0)
+    {
+    }
+
 
     ~Vector4()
     {

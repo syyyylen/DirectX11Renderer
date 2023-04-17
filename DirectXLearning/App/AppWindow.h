@@ -45,7 +45,6 @@ private:
     unsigned long m_oldDeltaTime = 0.0f;
     unsigned long m_newDeltaTime = 0.0f;
     float m_deltaTime = 0.0f;
-    float m_angle = 0.0f;
 
     float m_totalTime = 0.0f;
 
