@@ -24,7 +24,8 @@ void DeviceContext::ClearRenderTargetColor(const std::shared_ptr<SwapChain>& swa
 {
     FLOAT clearColor[] = { red, green, blue, alpha };
     m_deviceContext->ClearRenderTargetView(swapChain->m_rtv , clearColor);
-    m_deviceContext->OMSetRenderTargets(1, &swapChain->m_rtv, NULL);
+    m_deviceContext->ClearDepthStencilView(swapChain->m_dsv, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1, 0);
+    m_deviceContext->OMSetRenderTargets(1, &swapChain->m_rtv, swapChain->m_dsv);
 }
 
 void DeviceContext::SetVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)

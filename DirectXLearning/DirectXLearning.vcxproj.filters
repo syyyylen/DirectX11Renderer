@@ -34,6 +34,8 @@
     <ClCompile Include="imgui_implem\imgui_src\imgui_draw.cpp" />
     <ClCompile Include="imgui_implem\imgui_src\imgui_tables.cpp" />
     <ClCompile Include="imgui_implem\imgui_src\imgui_widgets.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\Mesh.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\MeshManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\AppWindow.h" />
@@ -67,9 +69,16 @@
     <ClInclude Include="imgui_implem\imgui_src\imstb_rectpack.h" />
     <ClInclude Include="imgui_implem\imgui_src\imstb_textedit.h" />
     <ClInclude Include="imgui_implem\imgui_src\imstb_truetype.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\Mesh.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\MeshManager.h" />
+    <ClInclude Include="GameEngine\Math\Vector2.h" />
+    <ClInclude Include="GameEngine\Math\VertexMesh.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="App\VertexShader.hlsl" />
     <FxCompile Include="App\PixelShader.hlsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GameEngine\GraphicsEngine\VertexMeshLayout.hlsl" />
   </ItemGroup>
 </Project>

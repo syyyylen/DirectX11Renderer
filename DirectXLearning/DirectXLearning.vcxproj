@@ -78,12 +78,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>Libs\DirectXTex\include;$(IncludePath)</IncludePath>
+    <IncludePath>Libs\DirectXTex\include;Libs\tinyobjloader\include;$(IncludePath)</IncludePath>
     <LibraryPath>Libs\DirectXTex\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>Libs\DirectXTex\include;$(IncludePath)</IncludePath>
+    <IncludePath>Libs\DirectXTex\include;Libs\tinyobjloader\include;$(IncludePath)</IncludePath>
     <LibraryPath>Libs\DirectXTex\bin;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -228,10 +228,16 @@
     <ClCompile Include="GameEngine\GraphicsEngine\Renderer\SwapChain\SwapChain.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\Renderer\VertexBuffer\VertexBuffer.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\Renderer\VertexShader\VertexShader.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\Mesh.cpp" />
+    <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\MeshManager.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\Resource.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\ResourceManager.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\TextureManager\Texture.cpp" />
     <ClCompile Include="GameEngine\GraphicsEngine\ResourceManager\TextureManager\TextureManager.cpp" />
+    <None Include="GameEngine\GraphicsEngine\VertexMeshLayoutShader.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
     <ClCompile Include="GameEngine\InputSystem\InputSystem.cpp" />
     <ClCompile Include="GameEngine\Logger\Log.cpp" />
     <ClCompile Include="GameEngine\WindowingSystem\Window.cpp">
@@ -687,6 +693,8 @@
     <ClInclude Include="GameEngine\GraphicsEngine\Renderer\SwapChain\SwapChain.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\Renderer\VertexBuffer\VertexBuffer.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\Renderer\VertexShader\VertexShader.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\Mesh.h" />
+    <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\MeshManager\MeshManager.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\Resource.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\ResourceManager.h" />
     <ClInclude Include="GameEngine\GraphicsEngine\ResourceManager\TextureManager\Texture.h" />
@@ -699,6 +707,7 @@
     <ClInclude Include="GameEngine\Math\Vector2.h" />
     <ClInclude Include="GameEngine\Math\Vector3.h" />
     <ClInclude Include="GameEngine\Math\Vector4.h" />
+    <ClInclude Include="GameEngine\Math\VertexMesh.h" />
     <ClInclude Include="GameEngine\WindowingSystem\Window.h" />
     <ClInclude Include="imgui_implem\imgui_impl_dx11.h" />
     <ClInclude Include="imgui_implem\imgui_impl_win32.h" />

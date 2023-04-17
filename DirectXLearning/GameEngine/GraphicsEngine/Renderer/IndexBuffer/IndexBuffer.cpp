@@ -18,7 +18,7 @@ IndexBuffer::IndexBuffer(Renderer* renderer, void* listIndices, UINT listSize) :
 
     D3D11_SUBRESOURCE_DATA initData = {};
     initData.pSysMem = listIndices;
-
+    
     m_listSize = listSize;
     
     if(FAILED(m_renderer->m_d3dDevice->CreateBuffer(&bufferDesc, &initData, &m_buffer)))

@@ -4,6 +4,7 @@
 #include "../GameEngine/GraphicsEngine/Renderer/SwapChain/SwapChain.h"
 #include <Windows.h>
 
+#include "../GameEngine/GraphicsEngine/ResourceManager/MeshManager/MeshManager.h"
 #include "../GameEngine/InputSystem/InputSystem.h"
 #include "../GameEngine/Math/Vector3.h"
 #include "../GameEngine/Math/Vector2.h"
@@ -91,7 +92,8 @@ void AppWindow::OnCreate()
     InputSystem::Get()->AddListener(this);
     InputSystem::Get()->ShowCursor(false);
 
-    m_woodTexture = GraphicsEngine::Get()->GetTextureMgr()->CreateTextureFromFile(L"Assets\\Textures\\wood.jpg");
+    m_woodTexture = GraphicsEngine::Get()->GetTextureMgr()->CreateTextureFromFile(L"Assets\\Textures\\brick.png");
+    m_mesh = GraphicsEngine::Get()->GetMeshMgr()->CreateMeshFromFile(L"Assets\\Meshes\\teapot.obj");
     
     RECT rc = GetClientWindowRect();
     m_swapChain = GraphicsEngine::Get()->GetRenderer()->CreateSwapChain(m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
@@ -99,99 +101,12 @@ void AppWindow::OnCreate()
     // Cam spawnloc 
     m_worldCam.SetTranslation(Vector3(0.0f, 0.0f, -2.0f));
 
-    Vector3 position_list[] =
-    {
-        { Vector3(-0.5f,-0.5f,-0.5f)},
-        { Vector3(-0.5f,0.5f,-0.5f) },
-        { Vector3(0.5f,0.5f,-0.5f) },
-        { Vector3(0.5f,-0.5f,-0.5f)},
-
-        //BACK FACE
-        { Vector3(0.5f,-0.5f,0.5f) },
-        { Vector3(0.5f,0.5f,0.5f) },
-        { Vector3(-0.5f,0.5f,0.5f)},
-        { Vector3(-0.5f,-0.5f,0.5f) }
-    };
-
-    Vector2 texcoord_list[] =
-    {
-        { Vector2(0.0f,0.0f) },
-        { Vector2(0.0f,1.0f) },
-        { Vector2(1.0f,0.0f) },
-        { Vector2(1.0f,1.0f) }
-    };
-
-    Vertex vertex_list[] = 
-    {
-        //X - Y - Z
-        //FRONT FACE
-        { position_list[0],texcoord_list[1] },
-        { position_list[1],texcoord_list[0] },
-        { position_list[2],texcoord_list[2] },
-        { position_list[3],texcoord_list[3] },
-
-
-        { position_list[4],texcoord_list[1] },
-        { position_list[5],texcoord_list[0] },
-        { position_list[6],texcoord_list[2] },
-        { position_list[7],texcoord_list[3] },
-
-
-        { position_list[1],texcoord_list[1] },
-        { position_list[6],texcoord_list[0] },
-        { position_list[5],texcoord_list[2] },
-        { position_list[2],texcoord_list[3] },
-
-        { position_list[7],texcoord_list[1] },
-        { position_list[0],texcoord_list[0] },
-        { position_list[3],texcoord_list[2] },
-        { position_list[4],texcoord_list[3] },
-
-        { position_list[3],texcoord_list[1] },
-        { position_list[2],texcoord_list[0] },
-        { position_list[5],texcoord_list[2] },
-        { position_list[4],texcoord_list[3] },
-
-        { position_list[7],texcoord_list[1] },
-        { position_list[6],texcoord_list[0] },
-        { position_list[1],texcoord_list[2] },
-        { position_list[0],texcoord_list[3] }
-    };
-
-    UINT listSize = ARRAYSIZE(vertex_list);
-
-    unsigned int index_list[]=
-    {
-        //FRONT SIDE
-        0,1,2,  //FIRST TRIANGLE
-        2,3,0,  //SECOND TRIANGLE
-        //BACK SIDE
-        4,5,6,
-        6,7,4,
-        //TOP SIDE
-        8,9,10,
-        10,11,8,
-        //BOTTOM SIDE
-        12,13,14,
-        14,15,12,
-        //RIGHT SIDE
-        16,17,18,
-        18,19,16,
-        //LEFT SIDE
-        20,21,22,
-        22,23,20
-    };
-
-    UINT indexListSize = ARRAYSIZE(index_list);
-    m_indexBuffer = GraphicsEngine::Get()->GetRenderer()->CreateIndexBuffer(index_list, indexListSize);
-
     void* shaderByteCode = nullptr;
     size_t shaderSize = 0;
 
     // Vertex Shader/Buffer compilation & creation
     GraphicsEngine::Get()->GetRenderer()->CompileVertexShader(L"VertexShader.hlsl", "vsmain", &shaderByteCode, &shaderSize);
     m_vs = GraphicsEngine::Get()->GetRenderer()->CreateVertexShader(shaderByteCode, shaderSize);
-    m_vertexBuffer = GraphicsEngine::Get()->GetRenderer()->CreateVertexBuffer(vertex_list, sizeof(Vertex), listSize, shaderByteCode, shaderSize);
     GraphicsEngine::Get()->GetRenderer()->ReleaseCompiledShader();
 
     // Pixel Shader compilation & creation
@@ -246,12 +161,12 @@ void AppWindow::OnUpdate()
         GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetTexture(m_ps, m_woodTexture);
 
     // Set the vertices of the triangle to draw
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexBuffer(m_vertexBuffer);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetVertexBuffer(m_mesh->GetVertexBuffer());
     // Set the indices of the triangle to draw
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetIndexBuffer(m_indexBuffer);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->SetIndexBuffer(m_mesh->GetIndexBuffer());
 
     // finally draw
-    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_indexBuffer->GetIndexListSize(), 0, 0);
+    GraphicsEngine::Get()->GetRenderer()->GetImmediateDeviceContext()->DrawIndexedTriangleList(m_mesh->GetIndexBuffer()->GetIndexListSize(), 0, 0);
 
     m_swapChain->Present(true);
 
@@ -268,7 +183,6 @@ void AppWindow::OnUpdate()
 
     { // My imgui test window
         ImGui::Begin("ImGui test window");                  
-        ImGui::SliderFloat("ColorSpeed", &ColorScalar, 0.0f, 5.0f);
         ImGui::SliderFloat("Sensivity", &MouseSensivity, 0.1f, 10.0f);            
         ImGui::SliderFloat("MoveSpeed", &MoveSpeed, 0.1f, 10.0f);            
         ImGui::SliderFloat("StrafeMoveSpeed", &StrafeMoveSpeed, 0.1f, 10.0f);            

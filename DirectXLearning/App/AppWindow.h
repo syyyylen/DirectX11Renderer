@@ -64,4 +64,7 @@ private:
 
     // Tex
     std::shared_ptr<Texture> m_woodTexture;
+
+    // Mesh
+    std::shared_ptr<Mesh> m_mesh;
 };

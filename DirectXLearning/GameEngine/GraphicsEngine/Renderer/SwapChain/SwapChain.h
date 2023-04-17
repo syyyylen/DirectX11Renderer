@@ -15,8 +15,9 @@ public:
     ID3D11RenderTargetView** GetRTVLValue();
 
 private:
-    IDXGISwapChain* m_swapChain;
-    ID3D11RenderTargetView* m_rtv;
+    IDXGISwapChain* m_swapChain = nullptr;
+    ID3D11RenderTargetView* m_rtv = nullptr;
+    ID3D11DepthStencilView* m_dsv = nullptr;
 
     Renderer* m_renderer = nullptr;
 

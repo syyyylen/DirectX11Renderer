@@ -21,5 +21,5 @@ float4 psmain(PS_INPUT input) : SV_TARGET
 {
 	//return float4(255.0f, 240.0f, 0.0f, 1.0f); // the safety yellow
 
-    return Texture.Sample(TextureSampler, input.texcoord);
+    return Texture.Sample(TextureSampler, input.texcoord * 0.5);
 }
